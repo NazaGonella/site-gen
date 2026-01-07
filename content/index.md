@@ -1,15 +1,16 @@
 ---
-title: titulo
+title: Nuevo Titulo 1231
 date: titulo
 content: titulo
 tags: math
 tags: games
 tags: bowling2
 section: posts
+template: "hola"
 ---
 
 
-hello2
+{{title}}
 
 ahowdiaowdj
 

@@ -78,9 +78,9 @@ class Site:
                 section_meta = page.get_field("section")
                 assert len(section_meta) == 1, f"section should only have one value. section_meta={section_meta}."
                 self.sections.setdefault(section_meta[0], []).append(page)
-        print("\nUPDATE ALL PAGES")
-        print("sections:", self.sections)
-        print("tags:", self.tags)
+        # print("\nUPDATE ALL PAGES")
+        # print("sections:", self.sections)
+        # print("tags:", self.tags)
     
     def update_indices_for_page(self, page : Page):
         for pages in self.tags.values():
@@ -99,9 +99,9 @@ class Site:
             assert len(section_meta) == 1
             self.sections.setdefault(section_meta[0], []).append(page)
 
-        print("\nUPDATE FOR PAGE")
-        print("sections:", self.sections)
-        print("tags:", self.tags)
+        # print("\nUPDATE FOR PAGE")
+        # print("sections:", self.sections)
+        # print("tags:", self.tags)
 
 
     def deploy_path(self):

@@ -5,6 +5,7 @@ content: titulo
 tags: math
 tags: software
 section: posts
+template: "hola"
 ---
 
 
