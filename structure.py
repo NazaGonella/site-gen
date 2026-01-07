@@ -1,4 +1,5 @@
 import shutil
+import re
 from parser import ParseMarkdown
 from pathlib import Path
 from datetime import date
@@ -9,7 +10,7 @@ class Page:
         self.parse_fields(md_file)
 
     def parse_fields(self, md_file : Path):
-        parse : ParseMarkdown = ParseMarkdown(self.site.templates_path, md_file)
+        parse : ParseMarkdown = ParseMarkdown(md_file)
         fields = {
             "title"     : parse.meta.get("title", md_file.stem),
             "date"      : parse.meta.get("date", date.today()),
@@ -18,6 +19,7 @@ class Page:
             # "url"       : parse.meta.get("url", ""),
             "tags"       : parse.meta.get("tags", []),
             "section"   : parse.meta.get("section", md_file.parent.parent.stem),
+            "template" : parse.meta.get("template", "")
         }
         self.__fields = fields
 
@@ -32,6 +34,32 @@ class Page:
     
     def has_field(self, key : str) -> bool:
         return key in self.__fields
+    
+    def render(self, template_content : str) -> str:
+        pre_content : str = self.get_field("content")
+        content = pre_content
+        if template_content:
+            matches_with_braces = re.findall(r"(\{\{.*?\}\})", template_content)
+            matches = re.findall(r"\{\{(.*?)\}\}", template_content)
+            for i in range(len(matches)):
+                m : str = matches[i]
+                token : str = m.strip()
+                if token.startswith("page."):
+                    token = token[len("page."):]
+                    if token == "content":
+                        content = template_content.replace(matches_with_braces[i], pre_content)
+
+        matches_with_braces = re.findall(r"(\{\{.*?\}\})", content)
+        matches = re.findall(r"\{\{(.*?)\}\}", content)
+        for i in range(len(matches)):
+            m : str = matches[i]
+            token : str = m.strip()
+            if token.startswith("page."):
+                token = token[len("page."):]
+                if self.has_field(token):
+                    content = content.replace(matches_with_braces[i], self.get_field(token)[0])
+        
+        return content
 
 class Site:
     def __init__(self, content_path : str, build_path : str, deploy_path : str, templates_path : str):
@@ -62,8 +90,13 @@ class Site:
                 page : Page = Page(self, item)
                 self.pages[item] = page
 
+                template_path = self.templates_path / f"{page.get_field("template")[0]}.html"
+                template_content = template_path.read_text(encoding="utf-8") if template_path.exists() else ""
+
+                print(template_path)
+
                 output_path : Path = target.parent / "index.html"
-                output_path.write_text(page.get_field("content"), encoding="utf-8")
+                output_path.write_text(page.render(template_content), encoding="utf-8")
         
         self.update_page_indices()
     
