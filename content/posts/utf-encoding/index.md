@@ -1,9 +1,10 @@
 ---
-title: "titulo"
-date: "titulo"
-content: "titulo"
-tags: "titulo"
-section: "titulo"
+title: titulo
+date: titulo
+content: titulo
+tags: math
+tags: software
+section: posts
 ---
 
 

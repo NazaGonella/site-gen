@@ -1,12 +1,15 @@
 ---
-title: "titulo"
-date: "titulo"
-content: "titulo"
-tags: "titulo"
-section: "titulo"
+title: titulo
+date: titulo
+content: titulo
+tags: math
+tags: games
+tags: bowling2
+section: posts
 ---
 
-hello
+
+hello2
 
 ahowdiaowdj
 
