@@ -13,6 +13,11 @@ this is a section --> {{page.section     }} <--
 
 {{page.title}}
 
+
+page.date
+
+{{page.section}}
+
 aowijdaowijd
 
 

@@ -19,12 +19,6 @@ class Page:
         section     = parse.meta.get("section", [md_file.parent.parent.stem])[0]    # defaults to parent's parent folder
         tags        = parse.meta.get("tags", [])                                    # unique list field
 
-        # print(title)
-        # print(_date)
-        # print(template)
-        # print(section)
-        # print(tags)
-
         fields = {
             "content"   : content,
             "title"     : title,
@@ -72,7 +66,7 @@ class Page:
             if token.startswith("page."):
                 token = token[len("page."):]
                 if self.has_field(token):
-                    content = content.replace(matches_with_braces[i], self.get_field(token))
+                    content = content.replace(matches_with_braces[i], str(self.get_field(token)))
         
         return content
 
