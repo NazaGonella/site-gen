@@ -11,7 +11,6 @@ class WatchDogHandler(FileSystemEventHandler):
     def on_modified(self, event: FileSystemEvent) -> None:
         mod_file_path : Path = Path(event.src_path)
         if mod_file_path.suffix == ".md":
-            # output : str = parse_markdown(mod_file_path)
             output : str = ParseMarkdown(mod_file_path).content_html
             rel_path : Path = mod_file_path.relative_to(self.site.content_path)
             output_path : Path = Path("build") / rel_path.parent / "index.html"
