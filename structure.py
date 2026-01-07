@@ -26,3 +26,12 @@ class Site:
 
     def deploy_path():
         pass
+
+class Page:
+    pass
+
+class Tag:
+    pass
+
+class Section:
+    pass

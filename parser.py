@@ -8,13 +8,19 @@ def parse_markdown(md_file : Path) -> str:
     content_md : str = md_file.read_text(encoding="utf-8")
     content_html : str = md.convert(content_md)
 
-    template : str = (Path("templates") / Path("template.html")).read_text(encoding="utf-8")
+    # template : str = (Path("templates") / Path("template.html")).read_text(encoding="utf-8")
 
-    output : str = template.replace("$body$", content_html)
+    # output : str = template.replace("$body$", content_html)
 
-    symbols : set[str] = set(re.findall(r'\$(.*?)\$', output))      # all symbols that are between $
-    for sym in symbols:
-        if sym in md.Meta:
-            output = output.replace(f"${sym}$", md.Meta[sym][0])
+    # symbols : set[str] = set(re.findall(r'\$(.*?)\$', output))      # all symbols that are between $
+    # for sym in symbols:
+    #     if sym in md.Meta:
+    #         output = output.replace(f"${sym}$", md.Meta[sym][0])
 
-    return output
+    return content_html
+
+def apply_template(template : str):
+    pass
+
+def get_symbols(html_file : Path):
+    pass
