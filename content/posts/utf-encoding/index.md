@@ -152,7 +152,7 @@ Leading bytes in multi-byte sequences consist of a series of ones followed by a 
 The rest of the bits are the data bits. These contain the code point value in binary, padded with leading zeros.
 
 | First code point | Last code point | Byte 1 | Byte 2 | Byte 3 | Byte 4 |
-|------------------+-----------------+--------+--------+--------+--------|
+|------------------|-----------------|--------|--------|--------|--------|
 | U+0000   | U+007F   | 0xxxxxxx |-|-|-|
 | U+0080   | U+07FF   | 110xxxxx | 10xxxxxx |-|-|
 | U+0800   | U+FFFF   | 1110xxxx | 10xxxxxx | 10xxxxxx |-|

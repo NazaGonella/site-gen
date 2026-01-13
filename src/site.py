@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 from src.page import Page
+from src.rss import MarkdownRSS
 
 class Site:
     def __init__(self, content_path : str, build_path : str, deploy_path : str, scripts_path : str, styles_path : str, templates_path : str):
@@ -20,8 +21,8 @@ class Site:
             shutil.rmtree(self.build_path)
         
         self.build_path.mkdir(parents=True, exist_ok=True)
-        (self.build_path / "scripts").mkdir(parents=True, exist_ok=True)
-        (self.build_path / "styles").mkdir(parents=True, exist_ok=True)
+        # (self.build_path / "scripts").mkdir(parents=True, exist_ok=True)
+        # (self.build_path / "styles").mkdir(parents=True, exist_ok=True)
 
         # css files
         for css_file in self.styles_path.rglob("*.css"):
@@ -57,6 +58,12 @@ class Site:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, target)
 
+        # generate RSS
+        rss = MarkdownRSS(
+            source_path=self.content_path / "posts",
+            output_file=str(self.build_path / "feed.xml"),
+        )
+        rss.build()
         
         self.update_page_indices()
     

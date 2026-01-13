@@ -11,7 +11,7 @@
     }
   </script>
   <link rel="stylesheet" href="/style.css">
-  <script type="text/javascript" src="/scripts/darkmode.js" defer></script>
+  <script type="text/javascript" src="/darkmode.js" defer></script>
 </head>
 
 <body>
@@ -142,12 +142,52 @@ There is a slight difference. ASCII and Unicode are both <em>coded character set
 <p>Leading bytes in multi-byte sequences consist of a series of ones followed by a zero. The number of ones indicates the total number of bytes used by the code point, including the leading byte. In our emoji example we see the leading byte has header bits <code>11110</code>, so we can read the code point as one character of 4 bytes. This rule applies to all code point lengths except for those of 1 byte, the ASCII characters.</p>
 <p>1-byte characters have a leading byte that starts with zero, followed by the code point value. The letter <code>A</code> will be encoded in UTF-8 the same way as one would encode it in ASCII.<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></p>
 <p>The rest of the bits are the data bits. These contain the code point value in binary, padded with leading zeros.</p>
-<p>| First code point | Last code point | Byte 1 | Byte 2 | Byte 3 | Byte 4 |
-|------------------+-----------------+--------+--------+--------+--------|
-| U+0000   | U+007F   | 0xxxxxxx |-|-|-|
-| U+0080   | U+07FF   | 110xxxxx | 10xxxxxx |-|-|
-| U+0800   | U+FFFF   | 1110xxxx | 10xxxxxx | 10xxxxxx |-|
-| U+010000 | U+10FFFF | 11110xxx | 10xxxxxx | 10xxxxxx | 10xxxxxx |</p>
+<table>
+<thead>
+<tr>
+<th>First code point</th>
+<th>Last code point</th>
+<th>Byte 1</th>
+<th>Byte 2</th>
+<th>Byte 3</th>
+<th>Byte 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U+0000</td>
+<td>U+007F</td>
+<td>0xxxxxxx</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>U+0080</td>
+<td>U+07FF</td>
+<td>110xxxxx</td>
+<td>10xxxxxx</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>U+0800</td>
+<td>U+FFFF</td>
+<td>1110xxxx</td>
+<td>10xxxxxx</td>
+<td>10xxxxxx</td>
+<td>-</td>
+</tr>
+<tr>
+<td>U+010000</td>
+<td>U+10FFFF</td>
+<td>11110xxx</td>
+<td>10xxxxxx</td>
+<td>10xxxxxx</td>
+<td>10xxxxxx</td>
+</tr>
+</tbody>
+</table>
 <p>The table contains the bytes with the header bits set. The <code>x</code> bits correspond to the data bits holding code point values.</p>
 <pre><code>int CodepointToUTF8(unsigned int codepoint, unsigned char *output) {
 
