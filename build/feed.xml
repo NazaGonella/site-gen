@@ -1,5 +1,144 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Naza Gonella Blog</title><link>http://ngonella.com/feed.xml</link><description>Hello and welcome to my feed!!</description><atom:link href="http://ngonella.com/feed.xml" rel="self"/><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><language>en</language><lastBuildDate>Tue, 13 Jan 2026 21:40:07 +0000</lastBuildDate><item><title>Decoding UTFs</title><link>https://ngonella.com/index</link><description>&lt;hr /&gt;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>Naza Gonella Blog</title><link>http://ngonella.com/feed.xml</link><description>Hello and welcome to my feed!!</description><atom:link href="http://ngonella.com/feed.xml" rel="self"/><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><language>en</language><lastBuildDate>Tue, 13 Jan 2026 22:02:15 +0000</lastBuildDate><item><title>Setting Up a Simple Blog - Handmade Static Site Generator</title><link>https://ngonella.com/index</link><description>&lt;hr /&gt;
+&lt;p&gt;You can check the repository &lt;a href="https://github.com/NazaGonella/yors-generator"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;The idea to start writing a blog has been in my mind for some time now, until today that I decided to get on with it. And what better way to begin than writing about this same process?&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3 id="what-am-i-looking-for"&gt;What Am I Looking For?&lt;/h3&gt;
+&lt;p&gt;From the start I knew I wanted something simple, easy to maintain and quick to iterate. One of the major reasons I'm doing this is to structure my thinking when working on any type of project, and for that I need not be distracted by implementation details.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3 id="barebones"&gt;Barebones&lt;/h3&gt;
+&lt;p&gt;Still, I would like to have some formatting, as there were times I would take notes in plain text files for then to never come back to them. So I'm using the next closest thing, Markdown.&lt;/p&gt;
+&lt;p&gt;Now what I need is to convert this Markdown file into a HTML file. After looking around through some posts on reddit, I found the &lt;a href="https://pandoc.org/"&gt;pandoc&lt;/a&gt; document converter, exactly what I needed. For any Markdown file I just had to run &lt;code&gt;pandoc input.md -o index.html&lt;/code&gt;. &lt;/p&gt;
+&lt;p&gt;Pandoc uses an extended version of Markdown which comes in handy, as it includes support for tables, definition lists, footnotes, citations and even math.  It also supports &lt;em&gt;Metadata Blocks&lt;/em&gt;, which allows including information such as &lt;code&gt;% title&lt;/code&gt;, &lt;code&gt;% author&lt;/code&gt; and &lt;code&gt;% date&lt;/code&gt;. I will only be using &lt;code&gt;% title&lt;/code&gt; since the tool issues a warning when not using it.&lt;/p&gt;
+&lt;p&gt;And there it was, just what I wanted, almost.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3 id="not-stylish-just-yet"&gt;Not Stylish, Just Yet&lt;/h3&gt;
+&lt;p&gt;A plain HTML file with formatted text is a lot better than a plain text file, but unfortunately it doesn't look good on the portfolio. &lt;/p&gt;
+&lt;p&gt;I need something simple, but still good looking. Luckily you can link a &lt;code&gt;.css&lt;/code&gt; file to the output of pandoc using the &lt;code&gt;--css&lt;/code&gt; argument. The problem is I don't have much experience using css, so it is time to look for references.&lt;/p&gt;
+&lt;p&gt;I really like &lt;a href="https://fabiensanglard.net/"&gt;Fabien Sanglard's&lt;/a&gt; and &lt;a href="https://stevelosh.com/"&gt;Steve Losh's&lt;/a&gt; websites. They are minimalistic, nice to look at, and easy to read. I appreciate how you can immediately see all the stuff the authors have been working on or pondering over the last couple of years as soon as you enter. With the help of inspect element, a couple of queries to ChatGPT, and a background from &lt;a href="https://heropatterns.com/"&gt;Hero Patterns&lt;/a&gt;, I ended up with a style I was happy with.&lt;/p&gt;
+&lt;p&gt;There was now a need for a nice header: css and Markdown alone wouldn't suffice. Fortunately, pandoc allows for HTML to be written into the Markdown file, which it then passes to the final output unchanged. I can now define a simple header to include on all the pages and ensure a concise style, but to achieve that I would have to copy and paste the same header everytime I create a new page. It would be nice to have some sort of page template.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3 id="the-page-template"&gt;The Page Template&lt;/h3&gt;
+&lt;p&gt;I went on and created &lt;code&gt;create-post.py&lt;/code&gt;, a Python script that takes &lt;code&gt;&amp;lt;file-name&amp;gt;&lt;/code&gt; and &lt;code&gt;&amp;lt;post-title&amp;gt;&lt;/code&gt; as arguments. This script creates &lt;code&gt;&amp;lt;file-name&amp;gt;.md&lt;/code&gt; and writes to it the metadata block &lt;code&gt;% &amp;lt;post-title&amp;gt;&lt;/code&gt;, the page header and the post header with the date of when the post was created.&lt;sup id="fnref:1"&gt;&lt;a class="footnote-ref" href="#fn:1"&gt;1&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;header_date = datetime.now().strftime("%B {S}, %Y").replace('{S}', str(datetime.now().day))
+
+header = f"""%{post_title}
+
+&amp;lt;header&amp;gt;
+    header content goes here
+&amp;lt;/header&amp;gt;
+
+## {post_title}
+
+{header_date}
+
+---
+
+with open(f"{posts_path}/{file_name}/{file_name}.md", "w", encoding="utf-8") as f:
+    f.write(header)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;I also included some code to add the post entry along with the date to the home page&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;home_path = "./home.md"
+date_entry = datetime.now().strftime("%d/%m/%Y")
+post_entry = f"{date_entry}: [**{post_title}**]({posts_path}/{file_name}/index.html)  \n"
+
+with open(home_path, "r", encoding="utf-8") as f:
+    lines = f.readlines()
+
+lines.insert(7, post_entry) # hardcoded position, for now
+
+with open(home_path, "w", encoding="utf-8") as f:
+    f.writelines(lines)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Some of this code is hardcoded. I plan on adding config files in the future. To see the full code visit the &lt;a href="https://github.com/NazaGonella/ngonella-static-site-generator"&gt;repository&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;With this, I now have an easy way of creating new entries.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3 id="generating-the-site"&gt;Generating the Site&lt;/h3&gt;
+&lt;p&gt;Calling pandoc for every &lt;code&gt;.md&lt;/code&gt; file is not ideal. That's why I implemented &lt;code&gt;build.py&lt;/code&gt;, a minimal build system for transforming recently modified Markdown files into HTML files.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import os
+import subprocess
+from pathlib import Path
+
+css_path = Path("style.css").resolve()      # absolute path to CSS
+
+ignored_mds = [Path("./README.md")]         # will not apply to ALL Markdown files
+
+markdown_files = [md for md in Path(".").rglob("*.md") if md not in ignored_mds]
+
+paired_files = [(md, md.parent / "index.html") for md in markdown_files if md not in ignored_mds]   # target: index.html file in the same directory
+
+print("### BUILD ###")
+
+for md, html in paired_files:
+    mod_time_md = md.stat().st_mtime
+    if html.exists():
+        mod_time_html = html.stat().st_mtime
+        if mod_time_html &amp;gt;  mod_time_md:
+            continue
+
+    relative_path_css  = os.path.relpath(css_path, start=html.parent)  # relative to html and md path
+
+    subprocess.run([
+        "pandoc",
+        "-s", str(md),
+        "-o", str(html),
+        "--css", relative_path_css,
+        "-V", "title="
+    ])
+
+    print(md, "-&amp;gt;", html)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;-s&lt;/code&gt; inserts the necessary headers and footers to create a full HTML file.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;-V title=&lt;/code&gt; prevents pandoc of inserting the variable defined in &lt;code&gt;% title&lt;/code&gt; as a header, while still keeping it as the document title.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;h3 id="workflow"&gt;Workflow&lt;/h3&gt;
+&lt;p&gt;I will be using &lt;a href="https://www.vim.org/"&gt;vim&lt;/a&gt; as my text editor, primarily for three reasons.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Fast and comfortable to write in.&lt;/li&gt;
+&lt;li&gt;Very customizable.&lt;/li&gt;
+&lt;li&gt;Looks cool.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Probably one of the most important aspects of using vim in this case is having the option to execute a command when saving the file. Thanks to this, I can now avoid having to call pandoc with the same arguments everytime I want to see the results on the browser. I just save the file and the HTML file is automatically generated.&lt;/p&gt;
+&lt;p&gt;I added the following to the &lt;code&gt;.vimrc&lt;/code&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;let s:script_dir = expand('&amp;lt;sfile&amp;gt;:p:h')
+autocmd FileType markdown autocmd BufWritePost &amp;lt;buffer&amp;gt; execute '!python3 ' . shellescape(s:script_dir . '/build.py')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This will apply only when saving &lt;code&gt;.md&lt;/code&gt; files.&lt;sup id="fnref:2"&gt;&lt;a class="footnote-ref" href="#fn:2"&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+&lt;p&gt;How about deployment? As I'm using Github Pages for hosting, pushing my local files to the remote repository will deploy the page. The thing is, I don't want to deploy everytime I correct a minor mistake, it would make version control really uncomfortable.&lt;/p&gt;
+&lt;p&gt;To fix this I created a new &lt;code&gt;working&lt;/code&gt; branch. Every change I make gets pushed to that branch. And once I feel it's time to deploy, I merge into the &lt;code&gt;master&lt;/code&gt; branch.&lt;/p&gt;
+&lt;p&gt;For easy deployment I made a simple shell script &lt;code&gt;deploy.sh&lt;/code&gt;.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;set -e
+
+working_branch="working"
+
+git checkout master
+git merge "$working_branch" --no-ff -m "Merge $working_branch branch into master"
+git push origin master
+
+echo "Master branch updated"
+
+git checkout "$working_branch"
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;set -e&lt;/code&gt; tells the shell to exit immediately if any command fails.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;--no-ff&lt;/code&gt; ensures git creates a merge commit even if a fast-forward is possible.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p&gt;And there it is, a simple framework for my use case. Every time I want to write about a new topic, I run &lt;code&gt;create-post.py&lt;/code&gt; and start writing right away. Once I'm done, I simply save and check the browser. If I'm happy with the result, I commit, push to origin and then run &lt;code&gt;deploy.sh&lt;/code&gt;. And just like that a new entry is added to the blog.&lt;/p&gt;
+&lt;p&gt;Initially, I wasn't familiar with the concept of static site generators. I've seen recommendations of tools like &lt;a href="https://jekyllrb.com/"&gt;Jekyll&lt;/a&gt; or &lt;a href="https://gohugo.io/"&gt;Hugo&lt;/a&gt; for easily creating personal websites, but I felt they were more than what I needed at the moment&lt;sup id="fnref:3"&gt;&lt;a class="footnote-ref" href="#fn:3"&gt;3&lt;/a&gt;&lt;/sup&gt;. I also liked the idea of creating a basic blog framework. What I ended up with was a custom static site generator. &lt;/p&gt;
+&lt;p&gt;Now it's a matter of time to see how well this framework holds up for me.&lt;/p&gt;
+&lt;div class="footnote"&gt;
+&lt;hr /&gt;
+&lt;ol&gt;
+&lt;li id="fn:1"&gt;
+&lt;p&gt;It would make more sense for the date to be the day it's published, added to the TODO list.&amp;#160;&lt;a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:2"&gt;
+&lt;p&gt;This assumes the .vimrc or .exrc files are in the same directory as build.py.&amp;#160;&lt;a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id="fn:3"&gt;
+&lt;p&gt;Reading Fabien Sanglard's post &lt;a href="https://fabiensanglard.net/html/index.html"&gt;All you may need is HTML&lt;/a&gt; may have had an effect on this decision.&amp;#160;&lt;a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text"&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description><guid isPermaLink="false">https://ngonella.com/feed/index</guid></item><item><title>Hola</title><link>https://ngonella.com/index</link><description></description><guid isPermaLink="false">https://ngonella.com/feed/index</guid></item><item><title>Decoding UTFs</title><link>https://ngonella.com/index</link><description>&lt;hr /&gt;
 &lt;p&gt;As a small project I built a simple JSON parser in C. I first added support for all data types, except for Unicode escape characters (JSON accepts values such as &lt;code&gt;\u03C0&lt;/code&gt; if you don't feel like manually copy-pasting the character &lt;code&gt;π&lt;/code&gt; with code point &lt;code&gt;U+03C0&lt;/code&gt;). I didn't find it urgent to add support for them right away, but when I finally got around to it, I realized encoding Unicode characters wasn't as simple as I had expected. You are not supposed to just put the raw code point value into the data structure.&lt;/p&gt;
 &lt;p&gt;So I decided to dive deep into Unicode and its encodings, and write about what I learned in the process. Hopefully you'll also pick something up along the way.&lt;/p&gt;
 &lt;hr /&gt;
