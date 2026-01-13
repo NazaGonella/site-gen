@@ -60,8 +60,9 @@ class Site:
 
         # generate RSS
         rss = MarkdownRSS(
-            source_path=self.content_path / "posts",
+            source_path=self.content_path,
             output_file=str(self.build_path / "feed.xml"),
+            config_file="rss-config.json"
         )
         rss.build()
         
