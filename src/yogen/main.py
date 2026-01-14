@@ -21,7 +21,7 @@ def serve(site : Site, port : int):
 
     HTTPServer(("127.0.0.1", port), http_handler).serve_forever()
 
-def create_site(root: Path) -> Site:
+def make_site(root: Path) -> Site:
     return Site(
         content_path=root / "content",
         build_path=root / "build",
@@ -29,7 +29,14 @@ def create_site(root: Path) -> Site:
         scripts_path=root / "scripts",
         styles_path=root / "styles",
         templates_path=root / "templates",
+        rss_config_path=root / "rss-config.json"
     )
+
+def yogen_folder_check():
+    if not Path(".yogen").is_file():
+        raise SystemExit(
+            "not a yogen site. Run `yogen create <name>`."
+        )
 
 def main():
     parser = argparse.ArgumentParser()
@@ -49,15 +56,17 @@ def main():
     if args.cmd == "create":
         root = Path(args.name)
         root.mkdir(parents=True, exist_ok=True)
-        site = create_site(root)
+        (root / ".yogen").touch(exist_ok=True)
+        site = make_site(root)
         build_default_files(root)
         build(site)
-    elif args.cmd == "build":
-        site = create_site(Path("."))
-        build(site)
-    elif args.cmd == "serve":
-        site = create_site(Path("."))
-        serve(site, args.port)
+    else:
+        yogen_folder_check()
+        site = make_site(Path("."))
+        if args.cmd == "build":
+            build(site)
+        elif args.cmd == "serve":
+            serve(site, args.port)
 
 if  __name__ == "__main__":
     main()

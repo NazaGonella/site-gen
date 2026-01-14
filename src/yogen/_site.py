@@ -4,13 +4,14 @@ from .page import Page
 from .rss import MarkdownRSS
 
 class Site:
-    def __init__(self, content_path : str, build_path : str, deploy_path : str, scripts_path : str, styles_path : str, templates_path : str):
+    def __init__(self, content_path : str, build_path : str, deploy_path : str, scripts_path : str, styles_path : str, templates_path : str, rss_config_path : str):
         self.content_path : Path = Path(content_path)
         self.build_path : Path = Path(build_path)
         self.deploy_path : Path = Path(deploy_path)
         self.scripts_path : Path = Path(scripts_path)
         self.styles_path : Path = Path(styles_path)
         self.templates_path : Path = Path(templates_path)
+        self.rss_config_path : Path = Path(rss_config_path)
         self.pages : dict[Path, Page] = {}
         self.sections = {}
         self.tags = {}
@@ -62,7 +63,7 @@ class Site:
         rss = MarkdownRSS(
             source_path=self.content_path,
             output_file=str(self.build_path / "feed.xml"),
-            config_file="rss-config.json"
+            config_file=self.rss_config_path
         )
         rss.build()
         
