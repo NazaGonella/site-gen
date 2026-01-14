@@ -22,8 +22,6 @@ class Site:
             shutil.rmtree(self.build_path)
         
         self.build_path.mkdir(parents=True, exist_ok=True)
-        # (self.build_path / "scripts").mkdir(parents=True, exist_ok=True)
-        # (self.build_path / "styles").mkdir(parents=True, exist_ok=True)
 
         # css files
         for css_file in self.styles_path.rglob("*.css"):

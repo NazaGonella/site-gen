@@ -10,6 +10,8 @@ def build(site : Site):
     site.build()
 
 def serve(site : Site, port : int):
+    site.build()
+
     event_handler : WatchDogHandler = WatchDogHandler(site)
     observer = Observer()
     observer.schedule(event_handler, site.content_path, recursive=True)
