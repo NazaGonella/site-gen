@@ -13,12 +13,13 @@ license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
     "markdown>=3.10,<4.0",
+    "markdown-captions>=2.1,<3.0",
     "feedgen>=1.0.0,<2.0",
     "watchdog>=6.0.0,<7.0"
 ]
 
 [project.scripts]
-site-gen = "yogen.main:main"
+yogen = "yogen.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

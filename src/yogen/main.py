@@ -1,10 +1,9 @@
-import json
 from .watcher import WatchDogHandler
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from watchdog.observers import Observer
 from pathlib import Path
 from ._site import Site
-from defaults import build_default_files
+from .defaults import build_default_files
 
 
 def main():
