@@ -2,8 +2,7 @@ from importlib import resources
 from pathlib import Path
 import shutil
 
-def build_default_files():
-    root = Path.cwd()
+def build_default_files(root : Path):
     defaults = resources.files("yogen").joinpath("defaults")
 
     for item in defaults.rglob("*"):

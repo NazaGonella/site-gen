@@ -7,7 +7,6 @@ from ._site import Site
 from .defaults import build_default_files
 
 def build(site : Site):
-    build_default_files()
     site.build()
 
 def serve(site : Site, port : int):
@@ -22,9 +21,23 @@ def serve(site : Site, port : int):
 
     HTTPServer(("127.0.0.1", port), http_handler).serve_forever()
 
+def create_site(root: Path) -> Site:
+    return Site(
+        content_path=root / "content",
+        build_path=root / "build",
+        deploy_path=root / "deploy",
+        scripts_path=root / "scripts",
+        styles_path=root / "styles",
+        templates_path=root / "templates",
+    )
+
 def main():
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
+
+
+    create_p = sub.add_parser("create")
+    create_p.add_argument("name")
 
     sub.add_parser("build")
 
@@ -33,11 +46,17 @@ def main():
 
     args = parser.parse_args()
 
-    site : Site = Site(content_path="content", build_path="build", deploy_path="deploy", scripts_path="scripts", styles_path="styles", templates_path="templates")
-
-    if args.cmd == "build":
+    if args.cmd == "create":
+        root = Path(args.name)
+        root.mkdir(parents=True, exist_ok=True)
+        site = create_site(root)
+        build_default_files(root)
+        build(site)
+    elif args.cmd == "build":
+        site = create_site(Path("."))
         build(site)
     elif args.cmd == "serve":
+        site = create_site(Path("."))
         serve(site, args.port)
 
 if  __name__ == "__main__":
