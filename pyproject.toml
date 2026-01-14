@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yogen"
+version = "0.1.0"
+description = "Static site generator"
+authors = [{name = "Nazareno Gonella", email = "nazagonella2@gmail.com"}]
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "markdown>=3.10,<4.0",
+    "feedgen>=1.0.0,<2.0",
+    "watchdog>=6.0.0,<7.0"
+]
+
+[project.scripts]
+site-gen = "yogen.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+include-package-data = true
