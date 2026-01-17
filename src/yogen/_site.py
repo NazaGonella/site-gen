@@ -30,15 +30,14 @@ class Site:
             shutil.copy2(css_file, target)
 
         # js files
-        for asset in self.scripts_path.rglob("*.js"):
-            target = self.build_path / asset.name
-            shutil.copy2(asset, target)
+        for script in self.scripts_path.rglob("*.js"):
+            target = self.build_path / script.name
+            shutil.copy2(script, target)
         
         # assets files
         for asset in self.assets_path.rglob("*"):
             target = self.build_path / asset.name
             shutil.copy2(asset, target)
-
         
         self.pages.clear()
         self.sections.clear()
@@ -106,7 +105,62 @@ class Site:
         # print("sections:", self.sections)
         # print("tags:", self.tags)
 
+    def deploy(self):
+        build_path : Path = self.build_path
+        deploy_path : Path = self.deploy_path
 
-    def deploy_path(self):
-        pass
+        if not build_path.exists() or not build_path.is_dir():
+            print("build folder not found. Run `yogen build`.")
+            return
+        
+        deploy_path.mkdir(parents=True, exist_ok=True)
 
+        static_file = deploy_path / ".static-deploy"
+        if not static_file.exists():
+            static_file.write_text(".git\n")    # default: protect .git
+
+
+        # get protected files from .static-deploy
+
+        protected_files = set()
+        with static_file.open("r", encoding="utf-8") as f:
+            for line in f:
+                path = line.strip()
+                if path:
+                    p = Path(path)
+                    if p.is_absolute():
+                        p = p.relative_to(p.anchor)
+                    protected_files.add(deploy_path / p)
+        
+        # print(protected_files)
+
+
+        # non-protected file removal
+
+        protected = {static_file}
+        protected |= protected_files
+
+        def is_protected(path : Path) -> bool:
+            return any(path == p or p in path.parents for p in protected)
+
+        for path in sorted(deploy_path.rglob("*"), reverse=True):
+            if is_protected(path):
+                continue
+            if path.is_file():
+                path.unlink()
+            elif path.is_dir():
+                try:
+                    path.rmdir()
+                except OSError:
+                    pass
+
+        
+        # copy build folder contents into deploy
+        
+        for item in build_path.rglob("*"):
+            target = deploy_path / item.relative_to(build_path)
+            if item.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(item, target)

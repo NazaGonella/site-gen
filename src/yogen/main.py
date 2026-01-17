@@ -23,6 +23,9 @@ def serve(site : Site, port : int):
 
     HTTPServer(("127.0.0.1", port), http_handler).serve_forever()
 
+def deploy(site : Site):
+    site.deploy()
+
 def make_site(root: Path) -> Site:
     return Site(
         content_path=root / "content",
@@ -54,6 +57,8 @@ def main():
     serve_p = sub.add_parser("serve")
     serve_p.add_argument("port", type=int, nargs="?", default=8000)
 
+    sub.add_parser("deploy")
+
     args = parser.parse_args()
 
     if args.cmd == "create":
@@ -70,6 +75,8 @@ def main():
             build(site)
         elif args.cmd == "serve":
             serve(site, args.port)
+        elif args.cmd == "deploy":
+            deploy(site)
 
 if  __name__ == "__main__":
     main()
