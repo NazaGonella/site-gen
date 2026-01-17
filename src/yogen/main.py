@@ -30,10 +30,7 @@ def make_site(root: Path) -> Site:
     return Site(
         content_path=root / "content",
         build_path=root / "build",
-        deploy_path=root / "deploy",
-        scripts_path=root / "scripts",
-        assets_path=root / "assets",
-        styles_path=root / "styles",
+        static_path=root / "static",
         templates_path=root / "templates",
         rss_config_path=root / "rss-config.json"
     )

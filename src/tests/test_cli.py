@@ -47,7 +47,7 @@ class TestCLI(unittest.TestCase):
             self.assertTrue((site_path / ".yogen").exists())
 
             # default folders exist
-            for folder in ["content", "build", "assets", "styles", "templates"]:
+            for folder in ["content", "build", "static", "templates"]:
                 folder_path = site_path / folder
                 print("Checking folder:", folder_path)
                 self.assertTrue(folder_path.exists())
