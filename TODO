@@ -8,3 +8,4 @@
 - Improve front matter
 - tests
 - handle more than one .md file in the same directory
+- handle git errors
