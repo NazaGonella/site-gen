@@ -1,5 +1,6 @@
 import tomllib
 import markdown
+import ast
 import re
 from yogen.config import load_config
 from pathlib import Path
@@ -40,37 +41,50 @@ class Page():
 
     def has_field(self, key : str) -> bool:
         return key in self.__fields
-
+    
     def render(self, templates : dict[str, str]) -> str:
         pre_content : str = self.get_field("content")
         template_content : str = templates.get(self.get_field("template"), "")
 
-        # apply template
-        content : str = pre_content
+        # start with template applied
+        content : str = template_content or pre_content
         if template_content:
-            matches_with_braces = re.findall(r"(\{\{.*?\}\})", template_content)
-            matches = re.findall(r"\{\{(.*?)\}\}", template_content)
-            for i in range(len(matches)):
-                m : str = matches[i]
-                token : str = m.strip()
-                if token.startswith("page."):
-                    token = token[len("page."):]
-                    if token == "content":
-                        content = template_content.replace(matches_with_braces[i], pre_content)
+            pattern = re.compile(r"\{\{\s*page\.content\s*\}\}")
+            content = pattern.sub(pre_content, content)
 
-        # replace placeholders with front matter fields
+        # find all placeholders
         matches_with_braces = re.findall(r"(\{\{.*?\}\})", content)
         matches = re.findall(r"\{\{(.*?)\}\}", content)
-        for i in range(len(matches)):
-            m : str = matches[i]
-            token : str = m.strip()
-            if token.startswith("page."):
-                token = token[len("page."):]
-                if self.has_field(token):
-                    content = content.replace(matches_with_braces[i], str(self.get_field(token)))
-            # # TODO
-            # if token.startswith("tag."):
-        
+
+        for i, m in enumerate(matches_with_braces):
+            token = matches[i].strip()
+            if not token.startswith("page."):
+                continue
+
+            expr = token[len("page."):]
+
+            try:
+                node = ast.parse(expr, mode="eval").body
+
+                # method call: page.method(args)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                    method_name = node.func.id
+                    args = [ast.literal_eval(a) for a in node.args]
+                    method = getattr(self, f"page_{method_name}", None)
+                    if callable(method):
+                        replacement = str(method(*args))
+                        content = content.replace(m, replacement)
+
+                # property access: page.field
+                elif isinstance(node, ast.Name):
+                    field_name = node.id
+                    if self.has_field(field_name):
+                        replacement = str(self.get_field(field_name))
+                        content = content.replace(m, replacement)
+
+            except Exception:
+                pass
+
         return content
     
 
@@ -78,7 +92,7 @@ class Page():
         if md_file.stem != "index":
             title = md_file.stem
         elif md_file.parent == content_path:
-            title = self.config["site"]["title"]  # site title as homepage
+            title = self.config["site"]["title"]
         else:
             title = md_file.parent.stem
         return title
@@ -89,6 +103,13 @@ class Page():
             return datetime.strptime(value, "%Y-%m-%d").date()
         except ValueError:
             raise ValueError(f"Invalid date format: {value}. Expected ISO YYYY-MM-DD.")
+    
+    def page_date(self, fmt: str = "%Y-%m-%d") -> str:
+        """Return the formatted date for templates"""
+        d = self.get_field("date")
+        if not isinstance(d, (date, datetime)):
+            return ""  # fallback
+        return d.strftime(fmt)
 
     def _parse_page(self) -> tuple[dict, str]:
         FRONT_MATTER_DELIM = "+++"
