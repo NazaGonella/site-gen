@@ -1,5 +1,5 @@
 +++
-title = "About"
+title = "about"
 author = "Your Name"
 date = "2011-11-11"
 tags = ["about"]
