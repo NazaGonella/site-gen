@@ -5,6 +5,7 @@ from pathlib import Path
 
 class Site():
     def __init__(self, config_path : Path):
+        self.config_file : Path = config_path
         self.config = load_config(config_path)
         self.pages : dict[Path, Page] = {}
         self.templates : dict[str, str] = {}    # template name -> template content
@@ -52,7 +53,7 @@ class Site():
 
         for item in self.content_path.rglob("*"):
             if item.suffix == ".md":
-                page : Page = Page(item)
+                page : Page = Page(item, self.config_file, self.content_path)
                 self.pages[item] = page
         
         # TODO: handle sections and tags
@@ -104,7 +105,7 @@ class Site():
         self.load_templates()
 
         for file in md_files:
-            page = Page(file)
+            page : Page = Page(file, self.config_file, self.content_path)
             self.pages[file] = page
 
             self.index_page(page)

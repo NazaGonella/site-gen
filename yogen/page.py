@@ -1,26 +1,20 @@
 import tomllib
 import markdown
 import re
+from yogen.config import load_config
 from pathlib import Path
 from datetime import date, datetime
 
 class Page():
-    def __init__(self, md_file: Path):
+    def __init__(self, md_file : Path, config_file : Path, content_path : Path):
+        self.config = load_config(config_file)
         self.file = md_file
         self.__fields = {
-            "title" : md_file.parent.stem,
+            "title" : self._define_title(md_file, content_path),
             "author" : "",
-            "date" : {
-                # "A" : date.today(),
-                "A" : date.today().isoformat(),             # ISO
-                "B" : date.today().strftime("%d/%m/%Y"),    # numeric
-                "C" : date.today().strftime("%d/%m/%y"),    # numeric
-                "D" : date.today().strftime("%m/%d/%Y"),    # numeric
-                "E" : date.today().strftime("%m/%d/%y"),    # numeric
-                "F" : date.today().strftime("%B %d, %Y"),   # display
-            },
+            "date" : date.today(),
             "template" : "",
-            "section" : md_file.parent.parent.stem,
+            "section" : "global",
             "tags" : []
         }
         meta, self.raw_html = self._parse_page()
@@ -78,38 +72,23 @@ class Page():
             # if token.startswith("tag."):
         
         return content
+    
+
+    def _define_title(self, md_file : Path, content_path : Path) -> str:
+        if md_file.stem != "index":
+            title = md_file.stem
+        elif md_file.parent == content_path:
+            title = self.config["site"]["title"]  # site title as homepage
+        else:
+            title = md_file.parent.stem
+        return title
 
     
-    def _parse_date(self, value) -> dict[str, date]:
-        # allow multiple common formats
-        date_obj : dict[str, date] = {}
-        # formats = ["%d/%m/%Y", "%d/%m/%y", "%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d"]
-        formats = ["%Y-%m-%d"]  # enforce ISO format
-        for fmt in formats:
-            try:
-                d = datetime.strptime(value, fmt).date()
-                # date_obj["A"] = d
-                date_obj["A"] = d.isoformat()
-                date_obj["B"] = d.strftime("%d/%m/%Y")
-                date_obj["C"] = d.strftime("%d/%m/%y")
-                date_obj["D"] = d.strftime("%m/%d/%Y")
-                date_obj["E"] = d.strftime("%m/%d/%y")
-                date_obj["F"] = d.strftime("%B %d, %Y")
-                break
-            except ValueError:
-                continue
-        else:
-            # fallback if no format matches
-            today = date.today()
-            # date_obj["A"] = today
-            date_obj["A"] = today.isoformat()
-            date_obj["B"] = today.strftime("%d/%m/%Y")
-            date_obj["C"] = today.strftime("%d/%m/%y")
-            date_obj["D"] = today.strftime("%m/%d/%Y")
-            date_obj["E"] = today.strftime("%m/%d/%y")
-            date_obj["F"] = today.strftime("%B %d, %Y")
-        
-        return date_obj
+    def _parse_date(self, value : str) -> date:
+        try:
+            return datetime.strptime(value, "%Y-%m-%d").date()
+        except ValueError:
+            raise ValueError(f"Invalid date format: {value}. Expected ISO YYYY-MM-DD.")
 
     def _parse_page(self) -> tuple[dict, str]:
         FRONT_MATTER_DELIM = "+++"

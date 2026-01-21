@@ -16,3 +16,4 @@
 - Parse page.date.B correctly
 - Update page meta on watch
 - config: make absolute paths work
+- title: explain to the user how default title work
