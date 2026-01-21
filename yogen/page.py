@@ -50,7 +50,8 @@ class Page():
         content : str = template_content or pre_content
         if template_content:
             pattern = re.compile(r"\{\{\s*page\.content\s*\}\}")
-            content = pattern.sub(pre_content, content)
+            # content = pattern.sub(pre_content, content)
+            content = pattern.sub(lambda _: pre_content, content)
 
         # find all placeholders
         matches_with_braces = re.findall(r"(\{\{.*?\}\})", content)
@@ -117,7 +118,7 @@ class Page():
         meta = {}
         raw = ""
 
-        md : markdown.Markdown = markdown.Markdown(extensions=["meta", "footnotes", "tables", "def_list", "toc", 'markdown_captions'])
+        md : markdown.Markdown = markdown.Markdown(extensions=["footnotes", "tables", "def_list", "toc", 'markdown_captions'])
         md_text : str = self.file.read_text(encoding="utf-8")
 
         lines = md_text.splitlines()
