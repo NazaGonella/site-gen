@@ -28,6 +28,8 @@ def parse_arguments():
     serve_p = sub.add_parser("serve")
     serve_p.add_argument("port", type=int, nargs="?", default=8000)
 
+    sub.add_parser("deploy")
+
     return parser.parse_args()
 
 
@@ -79,6 +81,10 @@ def cmd_serve(port : int):
 
     HTTPServer(("127.0.0.1", port), http_handler).serve_forever()
 
+def cmd_deploy():
+    site : Site = Site(Path(CONFIG_PATH))
+    site.deploy()
+
 
 def main():
     args = parse_arguments()
@@ -92,6 +98,9 @@ def main():
         case "serve":
             yogen_folder_check()
             cmd_serve(args.port)
+        case "deploy":
+            yogen_folder_check()
+            cmd_deploy()
 
 
 if __name__ == "__main__":

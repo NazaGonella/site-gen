@@ -1,7 +1,9 @@
 import shutil
+import subprocess
 from yogen.config import load_config
 from yogen.page import Page
-from yogen.rss import MarkdownRSS
+from feedgen.feed import FeedGenerator
+from datetime import datetime, date, timezone
 from pathlib import Path
 
 class Site():
@@ -68,7 +70,7 @@ class Site():
         target_sections = set(feed_cfg.get("sections", []))
         target_tags = set(feed_cfg.get("tags", []))
 
-        if not target_sections and not target_tags:
+        if not feed_cfg or (not target_sections and not target_tags):
             return
 
         pages_for_feed = [
@@ -77,14 +79,49 @@ class Site():
             or (target_tags and self.page_tags.get(page, set()) & target_tags)
         ]
 
-        rss = MarkdownRSS(
-            pages=pages_for_feed,
-            output_file=str(self.build_path / feed_cfg["output"]),
-            config_file=self.config_file
-        )
+        print("pages:", [str(page.file) for page in pages_for_feed])
 
-        rss.build()
-    
+        output_path : Path = self.build_path / feed_cfg["output"]
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        print("output path:", output_path)
+
+        fg = FeedGenerator()
+
+        site_cfg = self.config["site"]
+
+        fg.id(feed_cfg["output"])
+        fg.title(feed_cfg["title"])
+        fg.subtitle(feed_cfg["subtitle"])
+        fg.link(href=site_cfg["base_url"], rel="alternate")
+        # base = site_cfg["base_url"].rstrip("/")
+        # feed_url = f"{base}/{feed_cfg['output'].lstrip('/')}"
+        # fg.link(href=feed_url, rel="self")
+        # fg.language(site_cfg["languages"][0] if site_cfg["languages"] else "en")
+
+        # for author in site_cfg["authors"]:
+        #     fg.author({"name": author["name"], "email": author["email"]})
+
+        # if feed_cfg.get("icon"):
+        #     fg.logo(feed_cfg["icon"])
+
+        # for page in pages_for_feed:
+        #     entry = fg.add_entry()
+        #     rel = page.file.relative_to(self.content_path).with_suffix("")
+        #     if rel.name == "index":
+        #         rel = rel.parent
+        #     url = f"{site_cfg['base_url'].rstrip('/')}/{rel.as_posix()}/"
+        #     entry.id(url)
+        #     entry.link(href=url)
+        #     entry.title(str(page.get_field("title") or "Untitled"))
+        #     entry.content(page.get_field("content") or "", type="html")
+        #     page_date = page.get_field("date")
+        #     if isinstance(page_date, date) and not isinstance(page_date, datetime):
+        #         page_date = datetime(page_date.year, page_date.month, page_date.day, tzinfo=timezone.utc)
+
+        #     entry.pubDate(page_date)
+
+        # fg.rss_file(str(output_path))
 
     def convert_page(self, file : Path, page : Page):
         target: Path = self.build_path / file.relative_to(self.content_path)
@@ -146,3 +183,16 @@ class Site():
         self.convert_pages()
         self.copy_other_files()
         self.convert_feed()
+
+
+    def deploy(self):
+        build_path : Path = self.build_path
+
+        if not build_path.exists() or not build_path.is_dir():
+            print("build folder not found. Run `yogen build`.")
+            return
+
+        subprocess.run(
+            ["git", "subtree", "push", "--prefix", str(build_path), "origin", "gh-pages"],
+            check=True,
+        )
