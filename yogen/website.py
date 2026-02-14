@@ -195,6 +195,6 @@ class Site():
             return
 
         subprocess.run(
-            ["git", "subtree", "push", "--prefix", str(build_path), "origin", "gh-pages"],
+            ["git", "subtree", "push", "--prefix", str(build_path), "origin", self.config["deploy"]["page_repo"]],
             check=True,
         )

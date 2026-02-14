@@ -43,6 +43,20 @@ def load_config(root: Path):
             raise KeyError(f"site.authors[{i}] missing name or email")
         if not isinstance(author["name"], str) or not isinstance(author["email"], str):
             raise TypeError(f"site.authors[{i}] name/email must be strings")
+    
+    # deploy section
+    deploy = config.get("deploy")
+    if not isinstance(deploy, dict):
+        raise KeyError("Missing or invalid [deploy] section")
+
+    if "page_repo" not in deploy:
+        raise KeyError("Missing deploy.page_repo")
+
+    if not isinstance(deploy["page_repo"], str):
+        raise TypeError("deploy.page_repo must be a string")
+
+    if not deploy["page_repo"]:
+        raise ValueError("deploy.page_repo cannot be empty")
 
     # feed section
     feed = config.get("feed")

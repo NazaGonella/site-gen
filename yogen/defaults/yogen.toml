@@ -14,6 +14,9 @@ languages = ["en"]                      # RSS feeds uses the first language in t
 name = "author 1 name"
 email = "author 1 email address"
 
+[deploy]
+page_repo = "gh-pages"
+
 [feed]
 title = "Your Feed Title"
 subtitle = "Your Feed Subtitle"

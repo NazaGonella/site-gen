@@ -19,3 +19,6 @@
 - title: explain to the user how default title work
 - invalid date warning
 - markdown files named anything other than index.md should be renamed to index.md and place in a folder named the same as before
+- Mark pages as draft
+- yogen create <title>, use <title> for something (default page title)
+- what if I do declarative, and I urge users to choose a template for the list, like {{ collection template=programming-posts-list }} ?
