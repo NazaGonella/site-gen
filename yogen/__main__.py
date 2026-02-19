@@ -20,15 +20,16 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    create_p = sub.add_parser("create")
-    create_p.add_argument("name")
+    create_p = sub.add_parser("create", help="Create a new site directory")
+    create_p.add_argument("name", help="Site name")
 
-    sub.add_parser("build")
+    sub.add_parser("build", help="Build the site into the output directory")
 
-    serve_p = sub.add_parser("serve")
-    serve_p.add_argument("port", type=int, nargs="?", default=8000)
+    serve_p = sub.add_parser("serve", help="Serve the site locally with live reload enabled by default")
+    serve_p.add_argument("port", help="Port to bind (default 8000)", type=int, nargs="?", default=8000)
+    serve_p.add_argument("--no-live", help="Disable live reload on file changes", action='store_true', required=False)
 
-    sub.add_parser("deploy")
+    sub.add_parser("deploy", help="Push the build directory to the GitHub Pages branch set in yogen.toml")
 
     return parser.parse_args()
 
@@ -62,18 +63,19 @@ def cmd_build():
     # for p, tags in site.page_tags.items():
     #     print(str(p.file), "->", list(tags))
 
-def cmd_serve(port : int):
+def cmd_serve(port : int, no_reload : bool):
     site : Site = Site(Path(CONFIG_PATH))
     site.build()
 
-    event_handler : WatchDogHandler = WatchDogHandler()
-    event_handler.on_rebuild_all = site.build
-    event_handler.on_rebuild_md = site.rebuild_md
+    if not no_reload:
+        event_handler : WatchDogHandler = WatchDogHandler()
+        event_handler.on_rebuild_all = site.build
+        event_handler.on_rebuild_md = site.rebuild_md
 
-    observer = Observer()
-    # TODO watch templates folder: on any event, rebuild
-    observer.schedule(event_handler, site.content_path, recursive=True)
-    observer.start()
+        observer = Observer()
+        # TODO watch templates folder: on any event, rebuild
+        observer.schedule(event_handler, site.content_path, recursive=True)
+        observer.start()
 
     http_handler = lambda *a, **kw: SimpleHTTPRequestHandler(
         *a, directory=str(site.build_path), **kw
@@ -97,7 +99,7 @@ def main():
             cmd_build()
         case "serve":
             yogen_folder_check()
-            cmd_serve(args.port)
+            cmd_serve(args.port, args.no_live)
         case "deploy":
             yogen_folder_check()
             cmd_deploy()

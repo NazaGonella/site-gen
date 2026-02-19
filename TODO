@@ -22,3 +22,4 @@
 - Mark pages as draft
 - yogen create <title>, use <title> for something (default page title)
 - what if I do declarative, and I urge users to choose a template for the list, like {{ collection template=programming-posts-list }} ?
+- argsparse add feedback to the user (help argument)
