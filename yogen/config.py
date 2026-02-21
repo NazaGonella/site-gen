@@ -58,6 +58,15 @@ def load_config(root: Path):
     if not deploy["page_repo"]:
         raise ValueError("deploy.page_repo cannot be empty")
 
+    if "remote" not in deploy:
+        raise KeyError("Missing deploy.remote")
+
+    if not isinstance(deploy["remote"], str):
+        raise TypeError("deploy.remote must be a string")
+
+    if not deploy["remote"]:
+        raise ValueError("deploy.remote cannot be empty")
+
     # feed section
     feed = config.get("feed")
     if not isinstance(feed, dict):

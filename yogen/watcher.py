@@ -3,8 +3,9 @@ from pathlib import Path
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 
 class WatchDogHandler(FileSystemEventHandler):
-    def __init__(self, delay : float = 0.3):
+    def __init__(self, content_root : Path, delay : float = 0.3):
         super().__init__()
+        self.content_root = content_root
         self.delay = delay
         self._timer : threading.Timer | None = None
 
@@ -22,23 +23,31 @@ class WatchDogHandler(FileSystemEventHandler):
         self._timer = threading.Timer(self.delay, self.on_timeout)
         self._timer.daemon = True
         self._timer.start()
+    
+    def _classify(self, p : Path):
+        p = p.resolve()
+        if p.is_relative_to(self.content_root) and p.suffix == ".md":
+            self.rebuild_md.add(p)
+        else:
+            self.rebuild_all = True
 
-    def on_modified(self, event: FileSystemEvent) -> None:
+    def on_modified(self, event : FileSystemEvent) -> None:
         if event.is_directory:
             return
 
         file_path : Path = Path(event.src_path)
         print("Modified file:", file_path)
         try:
-            if file_path.suffix != ".md":
-                self.rebuild_all = True
-            else:
-                self.rebuild_md.add(file_path)
+            # if file_path.suffix != ".md":
+            #     self.rebuild_all = True
+            # else:
+            #     self.rebuild_md.add(file_path)
+            self._classify(file_path)
             self._arm_timer()
         except FileNotFoundError:
             return
     
-    def on_created(self, event: FileSystemEvent) -> None:
+    def on_created(self, event : FileSystemEvent) -> None:
         file_path : Path = Path(event.src_path)
         print("Created file:", file_path)
         try:
@@ -49,7 +58,7 @@ class WatchDogHandler(FileSystemEventHandler):
     
     # TODO: not rebuild when creating or deleting markdown file
     
-    def on_deleted(self, event: FileSystemEvent) -> None:
+    def on_deleted(self, event : FileSystemEvent) -> None:
         file_path : Path = Path(event.src_path)
         print("Deleted file:", file_path)
         try:
@@ -58,7 +67,7 @@ class WatchDogHandler(FileSystemEventHandler):
         except FileNotFoundError:
             return
     
-    def on_moved(self, event: FileSystemEvent) -> None:
+    def on_moved(self, event : FileSystemEvent) -> None:
         file_path : Path = Path(event.src_path)
         print("Moved file:", file_path)
         try:

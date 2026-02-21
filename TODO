@@ -23,3 +23,8 @@
 - yogen create <title>, use <title> for something (default page title)
 - what if I do declarative, and I urge users to choose a template for the list, like {{ collection template=programming-posts-list }} ?
 - argsparse add feedback to the user (help argument)
+- test changing /content and /build folders names in yogen.toml
+- resolve() paths inside variables
+- test live rebuild on config file and static and templates folders.
+- make all paths relative to the content root (style.css is the same as /style.css)
+- check edge conditions for yogen deploy

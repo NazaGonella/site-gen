@@ -68,13 +68,17 @@ def cmd_serve(port : int, no_reload : bool):
     site.build()
 
     if not no_reload:
-        event_handler : WatchDogHandler = WatchDogHandler()
+        event_handler : WatchDogHandler = WatchDogHandler(content_root=site.content_path)
         event_handler.on_rebuild_all = site.build
         event_handler.on_rebuild_md = site.rebuild_md
 
         observer = Observer()
         # TODO watch templates folder: on any event, rebuild
         observer.schedule(event_handler, site.content_path, recursive=True)
+        # observer.schedule(event_handler, site.build_path, recursive=True)
+        observer.schedule(event_handler, site.templates_path, recursive=True)
+        observer.schedule(event_handler, site.static_path, recursive=True)
+        observer.schedule(event_handler, site.config_file, recursive=True)
         observer.start()
 
     http_handler = lambda *a, **kw: SimpleHTTPRequestHandler(

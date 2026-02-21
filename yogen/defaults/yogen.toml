@@ -15,6 +15,7 @@ name = "author 1 name"
 email = "author 1 email address"
 
 [deploy]
+remote = "origin"
 page_repo = "gh-pages"
 
 [feed]
