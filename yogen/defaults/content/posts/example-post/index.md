@@ -4,7 +4,7 @@ author = "Your Name"
 date = "2011-11-11"
 tags = ["some tag", "another tag"]
 section = "posts"
-template = "template-post"
+template = "/templates/template-post.html"
 +++
 
 ---

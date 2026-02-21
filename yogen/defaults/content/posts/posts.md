@@ -4,7 +4,7 @@ author = "Your Name"
 date = "2011-11-11"
 tags = [""]
 section = "posts-home"
-template = "template-home"
+template = "/templates/template-home.html"
 +++
 
 ### Here you can list your posts

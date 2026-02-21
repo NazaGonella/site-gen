@@ -11,7 +11,7 @@ class Site():
         self.config_file : Path = config_path
         self.config = load_config(config_path)
         self.pages : dict[Path, Page] = {}
-        self.templates : dict[str, str] = {}    # template name -> template content
+        # self.templates : dict[str, str] = {}    # template name -> template content
         self.sections : dict[str, set[Page]] = {}
         self.tags : dict[str, set[Page]] = {}
         self.page_sections : dict[Page, str] = {}
@@ -20,7 +20,7 @@ class Site():
         # helper paths
         self.build_path : Path = Path(self.config['paths']['build'])
         self.content_path : Path = Path(self.config['paths']['content'])
-        self.templates_path : Path = Path(self.config['paths']['templates'])
+        # self.templates_path : Path = Path(self.config['paths']['templates'])
         self.static_path : Path = Path(self.config['paths']['static'])
 
 
@@ -131,13 +131,14 @@ class Site():
 
         output_path: Path = target.parent / "index.html"
         output_path.write_text(
-            page.render(self.templates),
+            # page.render(self.templates),
+            page.render(self.build_path),
             encoding="utf-8",
         )
     
 
     def convert_pages(self):    # should it be convert_loaded_pages()?
-        self.load_templates()
+        # self.load_templates()
 
         for file, page in self.pages.items():
             self.convert_page(file, page)
@@ -158,14 +159,15 @@ class Site():
                 shutil.copy2(item, target)
     
 
-    def load_templates(self):
-        for file in self.templates_path.glob("*.html"):
-            name = file.stem
-            self.templates[name] = file.read_text(encoding="utf-8")
+    # def load_templates(self):
+    #     for file in self.templates_path.glob("*.html"):
+    #         name = file.stem
+    #         # print(file.relative_to(self.templates_path))
+    #         self.templates[name] = file.read_text(encoding="utf-8")
     
 
     def rebuild_md(self, md_files: set[Path]):
-        self.load_templates()
+        # self.load_templates()
 
         for file in md_files:
             page : Page = Page(file, self.config_file, self.content_path)
@@ -181,9 +183,9 @@ class Site():
 
         shutil.copytree(self.static_path, self.build_path)
 
+        self.copy_other_files()
         self.load_pages()
         self.convert_pages()
-        self.copy_other_files()
         self.convert_feed()
 
 

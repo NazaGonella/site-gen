@@ -1,30 +1,35 @@
-- Validate front matter fields
-- Front matter fields as lists
-- Template live update
-- Template front matter fields
-- Markdown extensions
-- Front matter fields can take parameters
-- For loops
-- Improve front matter
+TODO
 - tests
 - handle more than one .md file in the same directory
 - handle git errors
-- chronological content
-- multiple languages
-- code syntax highlighting (pygments?)
-- Custom date formats
-- Parse page.date.B correctly
 - Update page meta on watch
 - config: make absolute paths work
 - title: explain to the user how default title work
 - invalid date warning
-- markdown files named anything other than index.md should be renamed to index.md and place in a folder named the same as before
-- Mark pages as draft
 - yogen create <title>, use <title> for something (default page title)
 - what if I do declarative, and I urge users to choose a template for the list, like {{ collection template=programming-posts-list }} ?
 - argsparse add feedback to the user (help argument)
 - test changing /content and /build folders names in yogen.toml
-- resolve() paths inside variables
 - test live rebuild on config file and static and templates folders.
 - make all paths relative to the content root (style.css is the same as /style.css)
 - check edge conditions for yogen deploy
+- code syntax highlighting (pygments?)
+
+DONE
+- Validate front matter fields
+- Front matter fields as lists
+- Template live update
+- Markdown extensions
+- Front matter fields can take parameters
+- Improve front matter
+- Custom date formats
+
+DISCARDED
+- Template front matter fields
+- For loops
+- chronological content
+- multiple languages (for what?)
+- Parse page.date.B correctly
+- markdown files named anything other than index.md should be renamed to index.md and place in a folder named the same as before
+- Mark pages as draft
+- resolve() paths inside variables

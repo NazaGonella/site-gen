@@ -4,7 +4,7 @@ author = "Your Name"
 date = "2011-11-11"
 tags = ["about"]
 section = "about"
-template = "template-home"
+template = "/templates/template-home.html"
 +++
 
 <div style="margin-top:2em;"></div>

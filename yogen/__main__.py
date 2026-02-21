@@ -76,7 +76,7 @@ def cmd_serve(port : int, no_reload : bool):
         # TODO watch templates folder: on any event, rebuild
         observer.schedule(event_handler, site.content_path, recursive=True)
         # observer.schedule(event_handler, site.build_path, recursive=True)
-        observer.schedule(event_handler, site.templates_path, recursive=True)
+        # observer.schedule(event_handler, site.templates_path, recursive=True)
         observer.schedule(event_handler, site.static_path, recursive=True)
         observer.schedule(event_handler, site.config_file, recursive=True)
         observer.start()

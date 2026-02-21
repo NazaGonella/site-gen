@@ -8,7 +8,8 @@ from datetime import date, datetime
 
 class Page():
     def __init__(self, md_file : Path, config_file : Path, content_path : Path):
-        self.config = load_config(config_file)
+        self.config : Path = load_config(config_file)
+        self.content_path : Path = content_path
         self.file : Path = md_file
         self.__fields = {
             "title" : self._define_title(md_file, content_path),
@@ -43,10 +44,38 @@ class Page():
 
     def has_field(self, key : str) -> bool:
         return key in self.__fields
-    
-    def render(self, templates : dict[str, str]) -> str:
+
+    def _read_template_field(self, build_path : Path, template_field : str) -> str | None:
+        if not template_field:
+            return None
+        
+        root : Path = build_path.resolve()
+
+        try:
+            tfp : Path = Path(template_field)
+
+            if tfp.is_absolute():
+                tfp = tfp.relative_to("/")
+                template_path : Path = (root / tfp).resolve()
+            else:
+                relative_to_build = build_path / self.file.relative_to(self.content_path)
+                template_path : Path = (relative_to_build.resolve().parent / tfp).resolve()
+
+            if root not in template_path.parents and template_path != root:
+                raise ValueError("template path escapes build root")
+
+            if not template_path.exists() or not template_path.is_file():
+                raise FileNotFoundError(template_path)
+            
+            return template_path.read_text(encoding="utf-8")
+
+        except Exception:
+            return None
+
+    def render(self, build_path : Path) -> str:
         pre_content : str = self.get_field("content")
-        template_content : str = templates.get(self.get_field("template"), "")
+
+        template_content = self._read_template_field(build_path, self.get_field("template"))
 
         # start with template applied
         content : str = template_content or pre_content
