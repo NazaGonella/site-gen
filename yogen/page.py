@@ -2,7 +2,6 @@ import tomllib
 import markdown
 import ast
 import re
-import jinja
 from yogen.config import load_config
 from pathlib import Path
 from datetime import date, datetime
