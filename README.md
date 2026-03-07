@@ -1,6 +1,8 @@
+## Work in progress
+
 ## Welcome to yogen!
 
-yogen is a straighforward static site generator written in Python. It allows you to create and iterate websites by using Markdown or HTML files. Made for those looking for a no-fuss, quick to setup, not get in your way tool.
+yogen is a straightforward static site generator written in Python. It lets you build websites from Markdown or HTML files, designed for quick setup and fast iteration.
 
 ## Features
 
