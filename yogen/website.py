@@ -34,13 +34,13 @@ class Site():
             self.tags[tag].discard(page)
 
         new_tags : set[str] = set()
-        if page.has_field("tags"):
+        if page.has_meta("tags"):
             for tag in page.get_meta("tags"):
                 self.tags.setdefault(tag, set()).add(page)
                 new_tags.add(tag)
         self.page_tags[page] = new_tags
 
-        if page.has_field("section"):
+        if page.has_meta("section"):
             section : str = page.get_meta("section")
             self.sections.setdefault(section, set()).add(page)
             self.page_sections[page] = section

@@ -1,7 +1,7 @@
 import tomllib
 import markdown
-import ast
-import re
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 from yogen.config import load_config
 from pathlib import Path
 from datetime import date, datetime
@@ -19,7 +19,7 @@ class Page():
             "section" : "global",
             "tags" : []
         }
-        meta, self.raw_html = self._parse_page()
+        meta, self.raw_html = self._md_to_html()
         protected = {"content", "raw"}      # fields users cannot set
         for k, v in meta.items():
             if k == "date":
@@ -42,55 +42,27 @@ class Page():
             return None
         return self.__metadata[key]
 
-    def has_field(self, key : str) -> bool:
+    def has_meta(self, key : str) -> bool:
         return key in self.__metadata
 
-    def _read_template_field(self, build_path : Path, template_field : str) -> str | None:
-        if not template_field:
-            return None
-        
-        root : Path = build_path.resolve()
-
-        try:
-            tfp : Path = Path(template_field)
-
-            if tfp.is_absolute():
-                tfp = tfp.relative_to("/")
-                template_path : Path = (root / tfp).resolve()
-            else:
-                relative_to_build = build_path / self.file.relative_to(self.content_path)
-                template_path : Path = (relative_to_build.resolve().parent / tfp).resolve()
-
-            if root not in template_path.parents and template_path != root:
-                raise ValueError("template path escapes build root")
-
-            if not template_path.exists() or not template_path.is_file():
-                raise FileNotFoundError(template_path)
-            
-            return template_path.read_text(encoding="utf-8")
-
-        except Exception:
-            return None
-
     def render(self, build_path : Path) -> str:
-        pre_content : str = self.get_meta("content")
+        content_template : Template = Template(self.raw_html)
+        rendered_content = content_template.render(**self.__metadata)
 
-        template_content = self._read_template_field(build_path, self.get_meta("template"))
+        self.__metadata["content"] = Markup(rendered_content)
 
-        # start with template applied
-        content : str = template_content or pre_content
-        if template_content:
-            pattern = re.compile(r"\{\{\s*page\.content\s*\}\}")
-            # content = pattern.sub(pre_content, content)
-            content = pattern.sub(lambda _: pre_content, content)
-
-        content = self._replace_placeholders(content)
-
-        return content
+        env = Environment(
+            loader=FileSystemLoader(str(build_path)),
+            autoescape=select_autoescape()
+        )
+        template_path : str = str(Path(self.get_meta("template")).relative_to("/"))
+        template = env.get_template(template_path)
+        output = template.render(**self.__metadata)
+        return output
     
     def render_raw(self) -> str:
         content : str = self.get_meta("content")
-        content = self._replace_placeholders(content)
+        # content = self._replace_placeholders(content)
         return content
 
     def _define_title(self, md_file : Path, content_path : Path) -> str:
@@ -102,21 +74,13 @@ class Page():
             title = md_file.parent.stem
         return title
 
-    
     def _parse_date(self, value : str) -> date:
         try:
             return datetime.strptime(value, "%Y-%m-%d").date()
         except ValueError:
             raise ValueError(f"Invalid date format: {value}. Expected ISO YYYY-MM-DD.")
     
-    def page_date(self, fmt: str = "%Y-%m-%d") -> str:
-        """Return the formatted date for templates"""
-        d = self.get_meta("date")
-        if not isinstance(d, (date, datetime)):
-            return ""  # fallback
-        return d.strftime(fmt)
-
-    def _parse_page(self) -> tuple[dict, str]:
+    def _md_to_html(self) -> tuple[dict, str]:
         FRONT_MATTER_DELIM = "+++"
 
         meta = {}
@@ -148,40 +112,7 @@ class Page():
         
         raw_html : str = md.convert(raw)
 
-        self.__metadata["content"] = raw_html
+        # self.__metadata["content"] = raw_html
+        self.__metadata["content"] = Markup(raw_html)
         
         return meta, raw_html
-
-    
-    def _replace_placeholders(self, _content : str) -> str:
-        content = _content
-        # find all placeholders
-        matches_with_braces = re.findall(r"(\{\{.*?\}\})", content)
-        matches = re.findall(r"\{\{(.*?)\}\}", content)
-
-        for i, m in enumerate(matches_with_braces):
-            token = matches[i].strip()
-
-            try:
-                node = ast.parse(token, mode="eval").body
-
-                # method call: page.method(args)
-                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-                    method_name = node.func.id
-                    args = [ast.literal_eval(a) for a in node.args]
-                    method = getattr(self, f"page_{method_name}", None)
-                    if callable(method):
-                        replacement = str(method(*args))
-                        content = content.replace(m, replacement)
-
-                # property access: page.field
-                elif isinstance(node, ast.Name):
-                    field_name = node.id
-                    if self.has_field(field_name):
-                        replacement = str(self.get_meta(field_name))
-                        content = content.replace(m, replacement)
-
-            except Exception:
-                pass
-
-        return content
