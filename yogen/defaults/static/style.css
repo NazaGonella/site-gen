@@ -10,111 +10,117 @@
   --color_gray: #808080;
 }
 
-.darkmode {
-  --color_background: #2E2E2E;
-  --color_plain_text: #E4E4E4;
-  --color_highlight: #3399FF;
-  --color_title: #CC88FF;
-  --color_code: #3A3A3A;
-  --color_white: #FFFFFF;
-  --color_gray: #AAAAAA;
-  --color_table_border: #555555;
-  --color_table_header_bg: #3A3A3A;
-  --color_table_row_hover_bg: #454545;
+@font-face {
+  font-family: "JetBrainsMono";
+  src: url("/fonts/JetBrainsMono-Regular.ttf") format("truetype");
+  font-weight: 400;
 }
 
+@font-face {
+  font-family: "JetBrainsMono";
+  src: url("/fonts/JetBrainsMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/fonts/OpenSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/fonts/OpenSans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("/fonts/OpenSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
 
 /* base layout */
 
 p, h1, h2, h3, h4, h5, h6, blockquote, figure, div {
-    /*
-    margin-top: 1em;
-    margin-bottom: 1em;
-    */
-    line-height: 1.4;
+  line-height: 1.4;
 }
 
-.separator::after {
+/* .separator::after {
   content: ":";
-}
+} */
 
 html, body {
-  box-sizing: border-box;
-}
-
-*, *::before, *::after {
-  box-sizing: inherit;
-}
-
-html {
-    /*
-  margin: 0 auto;
-     */
-
-  width: 100%;
-  max-width: 900px;
-  margin: auto;
-  background-attachment: fixed;
-  background-repeat: repeat;
-    background-color: #F4F6F0;
-    background-color: #FAFAFA;
-    background-color: var(--color_background);
+	margin:0;
+	padding:0;
 }
 
 body {
-  background: var(--color_background);
-  font-family: Consolas, Monaco, "DejaVu Sans Mono", "Courier New", monospace;
-  font-size: 17px;
-  line-height: 1.5;
-  padding-top: 2.0em;
-  padding-right: 1.0em;
-  padding-left: 1.0em;
-  max-width: 100%;
-  font-weight: 400;
-  color: var(--color_plain_text);
+	/* background-color: #fe626e; */
+	background-color: #f6f6f6;
+	font-family: Open Sans, Helvetica, Arial, sans-serif;
+	font-size: 17px;
+	line-height: 1.6em;
+	letter-spacing: .4px;
+	font-weight: 400;
+	font-style: normal;
+	color: #000;
 }
 
 /* header */
 
 header {
-  position: relative;
-  display: flex;
-  /*justify-content: space-between;*/
-  justify-content: center;
-  /*align-items: center;*/
-  color: #777;
-  font-size: 17px;
-  line-height: 1.5;
+	text-align: center;
+	/* padding: 20px 5% 20px 2.5%; */
+	background: #7182ff;
+	overflow: hidden;
+  color: #0000ff;
 }
 
 header > nav {
+  /* box-sizing: border-box; */
+	padding-top: 15px;
+	padding-bottom: 15px;
+  max-width: 1120px;
+  margin: 0 auto;
   float: none;
   display: flex;
-  /*gap: 1em;*/
   gap: 2em;
-  font-size: 17px;
   line-height: 1.5;
 }
 
-header a {
-    text-decoration: underline;
+header > nav > a {
+  color: #0000ff;
+  /* color: #00f; */
 }
 
-/*COLORS*/
-
-header .author-name {
-  color: var(--color_plain_text);
-}
-
-header .author-name:hover {
-  color: var(--color_highlight);
-}
-
-header .title {
+/* header > nav > a {
+  color: #0000ff;
+  background-color: #000;
+  display: inline-block;
+  width: 4em;
+  height: 100%;
+  text-align: center;
+  line-height: 50px;
   text-decoration: none;
-  color: var(--color_highlight);
+} */
+
+.header.right {
+  margin-left: auto;
 }
 
+/* main */
+
+main {
+  /* box-sizing: border-box; */
+	padding-top: 15px;
+	padding-bottom: 15px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
 
 /* typography */
 
@@ -122,26 +128,10 @@ p {
   text-align: justify;
 }
 
-.posts p {
-  text-align: left;
-}
-
-p a strong {
-  letter-spacing: -0.03em;
-}
-
 a {
-  color: black;
+  color: var(--color_highlight);
   font-weight: bold;
   text-decoration: none;
-}
-
-a:not(.author-name):not(.title) {
-  color: blue;
-  color: #028090;
-  color: #1B9AAA;
-  color: red;
-  color: var(--color_highlight);
 }
 
 a:hover {
@@ -152,34 +142,23 @@ a:hover {
 /* code */
 
 pre, pre code, code {
-  font-family: inherit;
+  font-family: JetBrainsMono, monospace;
+  font-variant-ligatures: none;
   white-space: pre;
-  /* background: #e5e5e5; */
   background: var(--color_code);
   border-radius: 0.5ch;
   font-weight: bold;
 }
 
 pre {
-  /*
-  border: 1px solid #e1e1e1;
-  */
-  background: var(--color_code);
   border-radius: 0;
   border: 1px solid var(--color_plain_text);
   padding: 1.5ch;
   overflow-x: auto;
 }
 
-pre code {
-  background: var(--color_code);
-}
-
 :not(pre) > code {  /* inline code */
   font-size: 90%;
-  /*
-  font-weight: bold;
-  */
   font-weight: normal;
   padding-left: 0.3ch;
   padding-right: 0.3ch;
@@ -218,13 +197,8 @@ img.pixel, canvas.pixel {
 hr {
   display: block;
   border: 0;
-  /*border-top: 1px solid var(--color_gray);*/
   border-top: 1px solid var(--color_code);
   padding: 0;
-  /*
-  margin-top: 1em;
-  margin-bottom: 1em;
-   */
 }
 
 sup {
@@ -233,9 +207,6 @@ sup {
 }   
 
 blockquote {
-    /*
-  margin: 1.0em 8px;
-     * */
   border-left: 4px solid var(--color_gray);
   padding: 0.05em 8px;
 }
@@ -249,43 +220,43 @@ blockquote div {
 /* tables */
 
 table {
-    border-collapse: collapse;
-    width: 100%;
-    font-family: inherit;
-    font-size: 1rem;
-    line-height: 1.4;
+  border-collapse: collapse;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 table, th, td {
-    border: 1px solid var(--color_table_border);
+  border: 1px solid var(--color_table_border);
 }
 
 th, td {
-    padding: 0.5em 1em;
-    text-align: left;
-    vertical-align: top;
+  padding: 0.5em 1em;
+  text-align: left;
+  vertical-align: top;
 }
 
 th {
-    background-color: var(--color_table_header_bg);
-    font-weight: bold;
+  background-color: var(--color_table_header_bg);
+  font-weight: bold;
 }
 
 tr:hover {
-    background-color: var(--color_table_row_hover_bg);
+  background-color: var(--color_table_row_hover_bg);
 }
 
 caption {
-    caption-side: bottom;
-    text-align: left;
-    padding-top: 0.5em;
+  caption-side: bottom;
+  text-align: left;
+  padding-top: 0.5em;
 }
 
 
 /* italics */
 em, i {
-    font-style: italic;
-    font-weight: 500;
+  font-style: italic;
+  font-weight: 500;
 }
 
 
@@ -325,10 +296,10 @@ em, i {
     padding-left: 2em;
   }
 
-  .separator::after {
+  /* .separator::after {
     content: ":";
     margin: 0 0.25em;
-  }
+  } */
 }   
 
 

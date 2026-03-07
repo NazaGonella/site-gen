@@ -14,6 +14,11 @@ TODO
 - make all paths relative to the content root (style.css is the same as /style.css)
 - check edge conditions for yogen deploy
 - code syntax highlighting (pygments?)
+- use pydantic for config validation
+- make all front matter fields optional
+- switch to yaml?
+- run yogen everywhere down the CWD
+- cache config loading
 
 DONE
 - Validate front matter fields
