@@ -35,13 +35,13 @@ class Site():
 
         new_tags : set[str] = set()
         if page.has_field("tags"):
-            for tag in page.get_field("tags"):
+            for tag in page.get_meta("tags"):
                 self.tags.setdefault(tag, set()).add(page)
                 new_tags.add(tag)
         self.page_tags[page] = new_tags
 
         if page.has_field("section"):
-            section : str = page.get_field("section")
+            section : str = page.get_meta("section")
             self.sections.setdefault(section, set()).add(page)
             self.page_sections[page] = section
 
@@ -116,9 +116,9 @@ class Site():
             entry = fg.add_entry()
             entry.id(url)
             entry.link(href=url)
-            entry.title(str(page.get_field("title") or "Untitled"))
+            entry.title(str(page.get_meta("title") or "Untitled"))
             entry.content(page.render_raw() or "", type="html")
-            page_date = page.get_field("date")
+            page_date = page.get_meta("date")
             if isinstance(page_date, date) and not isinstance(page_date, datetime):
                 page_date = datetime(page_date.year, page_date.month, page_date.day, tzinfo=timezone.utc)
             entry.pubDate(page_date)

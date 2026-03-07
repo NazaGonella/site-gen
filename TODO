@@ -1,4 +1,5 @@
 TODO
+- make all front matter fields optional
 - tests
 - handle more than one .md file in the same directory
 - handle git errors
@@ -15,7 +16,6 @@ TODO
 - check edge conditions for yogen deploy
 - code syntax highlighting (pygments?)
 - use pydantic for config validation
-- make all front matter fields optional
 - switch to yaml?
 - run yogen everywhere down the CWD
 - cache config loading

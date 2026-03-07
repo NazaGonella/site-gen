@@ -6,7 +6,7 @@ yogen is a straightforward static site generator written in Python. It lets you 
 
 ## Features
 
-- Live editing for fast iteration
+- Live editing
 - Partial rebuilding
 - Simple templating system
 - Generation of RSS feeds

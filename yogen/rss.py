@@ -33,10 +33,10 @@ class MarkdownRSS:
         for page in self.pages:
             entry = fg.add_entry()
             entry.id(f"{site_cfg['base_url']}/{page.file.stem}")
-            entry.title(str(page.get_field("title") or "Untitled"))
+            entry.title(str(page.get_meta("title") or "Untitled"))
             entry.link(href=f"{site_cfg['base_url']}/{page.file.stem}")
-            entry.content(page.get_field("content") or "", type="html")
-            page_date = page.get_field("date")
+            entry.content(page.get_meta("content") or "", type="html")
+            page_date = page.get_meta("date")
             if isinstance(page_date, date) and not isinstance(page_date, datetime):
                 page_date = datetime(page_date.year, page_date.month, page_date.day, tzinfo=timezone.utc)
 

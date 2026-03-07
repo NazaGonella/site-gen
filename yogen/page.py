@@ -2,6 +2,7 @@ import tomllib
 import markdown
 import ast
 import re
+import jinja
 from yogen.config import load_config
 from pathlib import Path
 from datetime import date, datetime
@@ -11,7 +12,7 @@ class Page():
         self.config : Path = load_config(config_file)
         self.content_path : Path = content_path
         self.file : Path = md_file
-        self.__fields = {
+        self.__metadata = {
             "title" : self._define_title(md_file, content_path),
             "author" : "",
             "date" : date.today(),
@@ -23,9 +24,9 @@ class Page():
         protected = {"content", "raw"}      # fields users cannot set
         for k, v in meta.items():
             if k == "date":
-                self.__fields[k] = self._parse_date(v)
+                self.__metadata[k] = self._parse_date(v)
             elif k not in protected:
-                self.__fields[k] = v
+                self.__metadata[k] = v
             else:
                 raise ValueError(f"metadata field '{k}' is protected and cannot be set")
     
@@ -37,13 +38,13 @@ class Page():
             return NotImplemented
         return self.file == other.file
     
-    def get_field(self, key : str) -> object | None:
-        if not key in self.__fields:
+    def get_meta(self, key : str) -> object | None:
+        if not key in self.__metadata:
             return None
-        return self.__fields[key]
+        return self.__metadata[key]
 
     def has_field(self, key : str) -> bool:
-        return key in self.__fields
+        return key in self.__metadata
 
     def _read_template_field(self, build_path : Path, template_field : str) -> str | None:
         if not template_field:
@@ -73,9 +74,9 @@ class Page():
             return None
 
     def render(self, build_path : Path) -> str:
-        pre_content : str = self.get_field("content")
+        pre_content : str = self.get_meta("content")
 
-        template_content = self._read_template_field(build_path, self.get_field("template"))
+        template_content = self._read_template_field(build_path, self.get_meta("template"))
 
         # start with template applied
         content : str = template_content or pre_content
@@ -89,7 +90,7 @@ class Page():
         return content
     
     def render_raw(self) -> str:
-        content : str = self.get_field("content")
+        content : str = self.get_meta("content")
         content = self._replace_placeholders(content)
         return content
 
@@ -111,7 +112,7 @@ class Page():
     
     def page_date(self, fmt: str = "%Y-%m-%d") -> str:
         """Return the formatted date for templates"""
-        d = self.get_field("date")
+        d = self.get_meta("date")
         if not isinstance(d, (date, datetime)):
             return ""  # fallback
         return d.strftime(fmt)
@@ -148,7 +149,7 @@ class Page():
         
         raw_html : str = md.convert(raw)
 
-        self.__fields["content"] = raw_html
+        self.__metadata["content"] = raw_html
         
         return meta, raw_html
 
@@ -161,13 +162,9 @@ class Page():
 
         for i, m in enumerate(matches_with_braces):
             token = matches[i].strip()
-            if not token.startswith("page."):
-                continue
-
-            expr = token[len("page."):]
 
             try:
-                node = ast.parse(expr, mode="eval").body
+                node = ast.parse(token, mode="eval").body
 
                 # method call: page.method(args)
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
@@ -182,7 +179,7 @@ class Page():
                 elif isinstance(node, ast.Name):
                     field_name = node.id
                     if self.has_field(field_name):
-                        replacement = str(self.get_field(field_name))
+                        replacement = str(self.get_meta(field_name))
                         content = content.replace(m, replacement)
 
             except Exception:
