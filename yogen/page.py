@@ -12,22 +12,24 @@ class Page():
         self.content_path : Path = content_path
         self.file : Path = md_file
         self.__metadata = {
-            "title" : self._define_title(md_file, content_path),
-            "author" : "",
-            "date" : date.today(),
-            "template" : "",
-            "section" : "global",
-            "tags" : []
+            "page" : {
+                "title" : self._define_title(md_file, content_path),
+                "author" : "",
+                "date" : date.today(),
+                "template" : "",
+                "section" : "global",
+                "tags" : []
+            }
         }
-        self.__metadata["sections"] = meta_sections
-        self.__metadata["all_tags"] = meta_tags
+        self.__metadata["section"] = meta_sections
+        self.__metadata["tag"] = meta_tags
         meta, self.raw_html = self._md_to_html()
         protected = {"content", "raw"}      # fields users cannot set
         for k, v in meta.items():
             if k == "date":
-                self.__metadata[k] = self._parse_date(v)
+                self.__metadata["page"][k] = self._parse_date(v)
             elif k not in protected:
-                self.__metadata[k] = v
+                self.__metadata["page"][k] = v
             else:
                 raise ValueError(f"metadata field '{k}' is protected and cannot be set")
     
@@ -39,10 +41,15 @@ class Page():
             return NotImplemented
         return self.file == other.file
     
+    def __getattr__(self, name):
+        if name in self.__metadata["page"]:
+            return self.__metadata["page"][name]
+        raise AttributeError(name)
+    
     def get_meta(self, key : str) -> object | None:
-        if not key in self.__metadata:
+        if not key in self.__metadata["page"]:
             return None
-        return self.__metadata[key]
+        return self.__metadata["page"][key]
 
     def has_meta(self, key : str) -> bool:
         return key in self.__metadata
@@ -51,7 +58,7 @@ class Page():
         content_template : Template = Template(self.raw_html)
         rendered_content = content_template.render(**self.__metadata)
 
-        self.__metadata["content"] = Markup(rendered_content)
+        self.__metadata["page"]["content"] = Markup(rendered_content)
 
         env = Environment(
             loader=FileSystemLoader(str(build_path)),
@@ -115,6 +122,6 @@ class Page():
         raw_html : str = md.convert(raw)
 
         # self.__metadata["content"] = raw_html
-        self.__metadata["content"] = Markup(raw_html)
+        self.__metadata["page"]["content"] = Markup(raw_html)
         
         return meta, raw_html
