@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import date, datetime
 
 class Page():
-    def __init__(self, md_file : Path, config_file : Path, content_path : Path):
+    def __init__(self, md_file : Path, config_file : Path, content_path : Path, meta_sections : dict[str, set[Page]], meta_tags : dict[str, set[Page]]):
         self.config : Path = load_config(config_file)
         self.content_path : Path = content_path
         self.file : Path = md_file
@@ -19,6 +19,8 @@ class Page():
             "section" : "global",
             "tags" : []
         }
+        self.__metadata["sections"] = meta_sections
+        self.__metadata["all_tags"] = meta_tags
         meta, self.raw_html = self._md_to_html()
         protected = {"content", "raw"}      # fields users cannot set
         for k, v in meta.items():

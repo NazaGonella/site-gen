@@ -11,7 +11,6 @@ class Site():
         self.config_file : Path = config_path
         self.config = load_config(config_path)
         self.pages : dict[Path, Page] = {}
-        # self.templates : dict[str, str] = {}    # template name -> template content
         self.sections : dict[str, set[Page]] = {}
         self.tags : dict[str, set[Page]] = {}
         self.page_sections : dict[Page, str] = {}
@@ -20,7 +19,6 @@ class Site():
         # helper paths
         self.build_path : Path = Path(self.config['paths']['build'])
         self.content_path : Path = Path(self.config['paths']['content'])
-        # self.templates_path : Path = Path(self.config['paths']['templates'])
         self.static_path : Path = Path(self.config['paths']['static'])
 
 
@@ -56,14 +54,14 @@ class Site():
 
         for item in self.content_path.rglob("*"):
             if item.suffix == ".md":
-                page : Page = Page(item, self.config_file, self.content_path)
+                page : Page = Page(item, self.config_file, self.content_path, self.sections, self.tags)
                 self.pages[item] = page
         
         # TODO: handle sections and tags
         # TODO: test
         for page in self.pages.values():
             self.index_page(page)
-    
+
 
     def convert_feed(self):
         feed_cfg = self.config.get("feed", {})
@@ -97,13 +95,9 @@ class Site():
         fg.subtitle(feed_cfg["subtitle"])
         fg.link(href=base_url, rel="alternate")
         fg.link(href=feed_link, rel="self")
-        # print("link:", base_url)
-        # print("feed_link:", feed_link)
         fg.language(site_cfg["languages"][0] if site_cfg["languages"] else "en")    # take first language, defaults to english
 
         for author in site_cfg["authors"]:
-            # print("author:", author["name"])
-            # print("email:", author["email"])
             fg.author({"name": author["name"], "email": author["email"]})
 
         if feed_cfg.get("icon"):
@@ -131,15 +125,12 @@ class Site():
 
         output_path: Path = target.parent / "index.html"
         output_path.write_text(
-            # page.render(self.templates),
             page.render(self.build_path),
             encoding="utf-8",
         )
     
 
     def convert_pages(self):    # should it be convert_loaded_pages()?
-        # self.load_templates()
-
         for file, page in self.pages.items():
             self.convert_page(file, page)
 
@@ -159,18 +150,9 @@ class Site():
                 shutil.copy2(item, target)
     
 
-    # def load_templates(self):
-    #     for file in self.templates_path.glob("*.html"):
-    #         name = file.stem
-    #         # print(file.relative_to(self.templates_path))
-    #         self.templates[name] = file.read_text(encoding="utf-8")
-    
-
     def rebuild_md(self, md_files: set[Path]):
-        # self.load_templates()
-
         for file in md_files:
-            page : Page = Page(file, self.config_file, self.content_path)
+            page : Page = Page(file, self.config_file, self.content_path, self.sections, self.tags)
             self.pages[file] = page
 
             self.index_page(page)
