@@ -86,7 +86,7 @@ class Page():
         meta = {}
         raw = ""
 
-        md : markdown.Markdown = markdown.Markdown(extensions=["footnotes", "tables", "def_list", "toc", 'markdown_captions'])
+        md : markdown.Markdown = markdown.Markdown(extensions=["footnotes", "tables", "def_list", "toc", 'markdown_captions', 'fenced_code'])
         md_text : str = self.file.read_text(encoding="utf-8")
 
         lines = md_text.splitlines()

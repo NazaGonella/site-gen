@@ -1,4 +1,5 @@
 TODO
+- readme markdown style
 - make all front matter fields optional
 - tests
 - handle more than one .md file in the same directory
