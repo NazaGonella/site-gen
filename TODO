@@ -1,4 +1,6 @@
 TODO
+- rename "tag" and "section" metadata to "tags" and "sections"
+- tags arent detected by jinja
 - readme markdown style
 - make all front matter fields optional
 - tests
