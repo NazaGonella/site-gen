@@ -19,10 +19,10 @@ class Page():
                 "template" : "",
                 "section" : "global",
                 "tags" : []
-            }
+            },
+            "sections" : meta_sections,
+            "tags" : meta_tags,
         }
-        self.__metadata["section"] = meta_sections
-        self.__metadata["tag"] = meta_tags
         meta, self.raw_html = self._md_to_html()
         protected = {"content", "raw"}      # fields users cannot set
         for k, v in meta.items():
@@ -52,7 +52,7 @@ class Page():
         return self.__metadata["page"][key]
 
     def has_meta(self, key : str) -> bool:
-        return key in self.__metadata
+        return key in self.__metadata["page"]
 
     def render(self, build_path : Path) -> str:
         content_template : Template = Template(self.raw_html)

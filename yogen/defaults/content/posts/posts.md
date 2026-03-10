@@ -11,7 +11,7 @@ template = "/templates/template-home.html"
 
 ---
 
-{% for p in section["posts"] | sort(attribute="date", reverse=True) %}
+{% for p in sections.posts | sort(attribute="date", reverse=True) %}
 <p>
     {{ p.date.strftime("%d/%m/%Y") }}
     <a href="/{{ p.file.relative_to(p.content_path).parent }}/">
