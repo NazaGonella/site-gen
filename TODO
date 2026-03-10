@@ -1,4 +1,5 @@
 TODO
+- let users change the tab title
 - page.url
 - always rebuild all bug
 - enforce tags to be a list (or not)
