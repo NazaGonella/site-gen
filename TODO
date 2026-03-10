@@ -1,6 +1,7 @@
 TODO
-- rename "tag" and "section" metadata to "tags" and "sections"
-- tags arent detected by jinja
+- page.url
+- always rebuild all bug
+- enforce tags to be a list (or not)
 - readme markdown style
 - make all front matter fields optional
 - tests
@@ -23,7 +24,10 @@ TODO
 - run yogen everywhere down the CWD
 - cache config loading
 
+
 DONE
+- rename "tag" and "section" metadata to "tags" and "sections"
+- tags arent detected by jinja
 - Validate front matter fields
 - Front matter fields as lists
 - Template live update

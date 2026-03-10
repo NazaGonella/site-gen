@@ -11,6 +11,8 @@ class Page():
         self.config : Path = load_config(config_file)
         self.content_path : Path = content_path
         self.file : Path = md_file
+        rel = md_file.relative_to(content_path).parent.as_posix()
+        url = "/" if rel == "." else f"/{rel}/"
         self.__metadata = {
             "page" : {
                 "title" : self._define_title(md_file, content_path),
@@ -18,7 +20,8 @@ class Page():
                 "date" : date.today(),
                 "template" : "",
                 "section" : "global",
-                "tags" : []
+                "tags" : [],
+                "url" : url,
             },
             "sections" : meta_sections,
             "tags" : meta_tags,
