@@ -81,7 +81,7 @@ class Page():
         if md_file.stem != "index":
             title = md_file.stem
         elif md_file.parent == content_path:
-            title = self.config["site"]["title"]
+            title = self.config.site.title
         else:
             title = md_file.parent.stem
         return title

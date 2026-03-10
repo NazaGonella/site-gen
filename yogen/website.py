@@ -17,9 +17,9 @@ class Site():
         self.page_tags : dict[Page, set[str]] = {}
 
         # helper paths
-        self.build_path : Path = Path(self.config['paths']['build'])
-        self.content_path : Path = Path(self.config['paths']['content'])
-        self.static_path : Path = Path(self.config['paths']['static'])
+        self.build_path : Path = Path(self.config.paths.build)
+        self.content_path : Path = Path(self.config.paths.content)
+        self.static_path : Path = Path(self.config.paths.static)
 
 
     def index_page(self, page : Page):
@@ -64,60 +64,61 @@ class Site():
 
 
     def convert_feed(self):
-        feed_cfg = self.config.get("feed", {})
-        target_sections = set(feed_cfg.get("sections", []))
-        target_tags = set(feed_cfg.get("tags", []))
+        feed_cfg = self.config.feed
+        if feed_cfg:
+            target_sections = set(feed_cfg.sections)
+            target_tags = set(feed_cfg.tags)
 
-        if not feed_cfg or (not target_sections and not target_tags):
-            return
+            if not feed_cfg or (not target_sections and not target_tags):
+                return
 
-        pages_for_feed = [
-            page for page in self.pages.values()
-            if (target_sections and self.page_sections.get(page) in target_sections)
-            or (target_tags and self.page_tags.get(page, set()) & target_tags)
-        ]
+            pages_for_feed = [
+                page for page in self.pages.values()
+                if (target_sections and self.page_sections.get(page) in target_sections)
+                or (target_tags and self.page_tags.get(page, set()) & target_tags)
+            ]
 
-        # print("pages:", [str(page.file) for page in pages_for_feed])
+            # print("pages:", [str(page.file) for page in pages_for_feed])
 
-        output_path : Path = self.build_path / feed_cfg["output"]
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path : Path = self.build_path / feed_cfg.output
+            output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # print("output path:", output_path)
+            # print("output path:", output_path)
 
-        fg = FeedGenerator()
+            fg = FeedGenerator()
 
-        site_cfg = self.config["site"]
+            site_cfg = self.config.site
 
-        base_url = site_cfg["base_url"]
-        feed_link = f"{site_cfg["base_url"]}/{feed_cfg['output'].lstrip('/')}"
-        fg.id(feed_cfg["output"])
-        fg.title(feed_cfg["title"])
-        fg.subtitle(feed_cfg["subtitle"])
-        fg.link(href=base_url, rel="alternate")
-        fg.link(href=feed_link, rel="self")
-        fg.language(site_cfg["languages"][0] if site_cfg["languages"] else "en")    # take first language, defaults to english
+            base_url = site_cfg.base_url
+            feed_link = f"{site_cfg.base_url}/{feed_cfg.output.lstrip('/')}"
+            fg.id(feed_cfg.output)
+            fg.title(feed_cfg.title)
+            fg.subtitle(feed_cfg.subtitle)
+            fg.link(href=base_url, rel="alternate")
+            fg.link(href=feed_link, rel="self")
+            fg.language(site_cfg.languages[0] if site_cfg.languages else "en")    # take first language, defaults to english
 
-        for author in site_cfg["authors"]:
-            fg.author({"name": author["name"], "email": author["email"]})
+            for author in site_cfg.authors:
+                fg.author({"name": author.name, "email": author.email})
 
-        if feed_cfg.get("icon"):
-            fg.logo(feed_cfg["icon"])
+            if feed_cfg.icon:
+                fg.logo(feed_cfg.icon)
 
-        # print("\nPAGES\n")
-        for page in pages_for_feed:
-            page_path : Path = page.file.relative_to(self.content_path)
-            url : str = f"{base_url.rstrip("/")}/{str(page_path.parent)}/"
-            entry = fg.add_entry()
-            entry.id(url)
-            entry.link(href=url)
-            entry.title(str(page.get_meta("title") or "Untitled"))
-            entry.content(page.render_raw() or "", type="html")
-            page_date = page.get_meta("date")
-            if isinstance(page_date, date) and not isinstance(page_date, datetime):
-                page_date = datetime(page_date.year, page_date.month, page_date.day, tzinfo=timezone.utc)
-            entry.pubDate(page_date)
+            # print("\nPAGES\n")
+            for page in pages_for_feed:
+                page_path : Path = page.file.relative_to(self.content_path)
+                url : str = f"{base_url.rstrip("/")}/{str(page_path.parent)}/"
+                entry = fg.add_entry()
+                entry.id(url)
+                entry.link(href=url)
+                entry.title(str(page.get_meta("title") or "Untitled"))
+                entry.content(page.render_raw() or "", type="html")
+                page_date = page.get_meta("date")
+                if isinstance(page_date, date) and not isinstance(page_date, datetime):
+                    page_date = datetime(page_date.year, page_date.month, page_date.day, tzinfo=timezone.utc)
+                entry.pubDate(page_date)
 
-        fg.rss_file(str(output_path))
+            fg.rss_file(str(output_path))
 
     def convert_page(self, file : Path, page : Page):
         target: Path = self.build_path / file.relative_to(self.content_path)
@@ -179,6 +180,6 @@ class Site():
             return
 
         subprocess.run(
-            ["git", "subtree", "push", "--prefix", str(build_path), self.config["deploy"]["remote"], self.config["deploy"]["page_repo"]],
+            ["git", "subtree", "push", "--prefix", str(build_path), self.config.deploy.remote, self.config.deploy.page_repo],
             check=True,
         )

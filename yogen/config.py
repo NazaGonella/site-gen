@@ -27,7 +27,7 @@ class Deploy(BaseModel):
 class Feed(BaseModel):
     title : str
     subtitle : str
-    icon : str
+    icon : str | None = None
     output : str
     sections : list[str] = []
     tags : list[str] = []
