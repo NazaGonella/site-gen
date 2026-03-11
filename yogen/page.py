@@ -34,7 +34,7 @@ class Page():
 
         page = {
             "title" : fm.title or self._define_title(md_file, content_path),
-            "author" : fm.authors,
+            "authors" : fm.authors,
             "date" : fm.date,
             "template" : fm.template,
             "section" : fm.section,
@@ -69,20 +69,38 @@ class Page():
     def has_meta(self, key : str) -> bool:
         return key in self.__metadata["page"]
 
-    def render(self, build_path : Path) -> str:
+    # def render(self, build_path : Path) -> str:
+    #     content_template : Template = Template(self.raw_html)
+    #     rendered_content = content_template.render(**self.__metadata)
+
+    #     self.__metadata["page"]["content"] = Markup(rendered_content)
+
+    #     env = Environment(
+    #         loader=FileSystemLoader(str(build_path)),
+    #         autoescape=select_autoescape()
+    #     )
+    #     template_path : str = str(Path(self.get_meta("template")).relative_to("/"))
+    #     template = env.get_template(template_path)
+    #     output = template.render(**self.__metadata)
+    #     return output
+
+    def render(self, build_path: Path) -> str:
         content_template : Template = Template(self.raw_html)
         rendered_content = content_template.render(**self.__metadata)
 
         self.__metadata["page"]["content"] = Markup(rendered_content)
 
+        template_path : str = self.get_meta("template")
+        if not template_path:
+            return rendered_content
+
         env = Environment(
             loader=FileSystemLoader(str(build_path)),
             autoescape=select_autoescape()
         )
-        template_path : str = str(Path(self.get_meta("template")).relative_to("/"))
-        template = env.get_template(template_path)
-        output = template.render(**self.__metadata)
-        return output
+
+        template = env.get_template(str(Path(template_path).relative_to("/")))
+        return template.render(**self.__metadata)
     
     def render_raw(self) -> str:
         content : str = self.get_meta("content")
