@@ -1,4 +1,6 @@
 TODO
+- define site variables
+- catch invalid formats in front matter
 - don't let users execute certain commands if the required fields are not filled (e.g. page_repo and remote in deploy)
 - let users change the tab title
 - page.url

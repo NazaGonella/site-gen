@@ -5,36 +5,48 @@ from markupsafe import Markup
 from yogen.config import load_config
 from pathlib import Path
 from datetime import date, datetime
+from yogen.front_matter import FrontMatter
 
 class Page():
     def __init__(self, md_file : Path, config_file : Path, content_path : Path, meta_sections : dict[str, set[Page]], meta_tags : dict[str, set[Page]]):
         self.config : Path = load_config(config_file)
         self.content_path : Path = content_path
         self.file : Path = md_file
+
+        self.__metadata = {
+            "page": {},
+            "sections": meta_sections,
+            "tags": meta_tags,
+        }
+
+        meta, self.raw_html = self._md_to_html()
+
+        protected = {"content", "raw", "url"}
+        bad = protected & meta.keys()
+        if bad:
+            raise ValueError(f"metadata field(s) {bad} are protected")
+
+        fm = FrontMatter.model_validate(meta)
+
+        # url for the /posts/index.md file would be /posts/
         rel = md_file.relative_to(content_path).parent.as_posix()
         url = "/" if rel == "." else f"/{rel}/"
-        self.__metadata = {
-            "page" : {
-                "title" : self._define_title(md_file, content_path),
-                "author" : "",
-                "date" : date.today(),
-                "template" : "",
-                "section" : "global",
-                "tags" : [],
-                "url" : url,
-            },
-            "sections" : meta_sections,
-            "tags" : meta_tags,
+
+        page = {
+            "title" : fm.title or self._define_title(md_file, content_path),
+            "author" : fm.authors,
+            "date" : fm.date,
+            "template" : fm.template,
+            "section" : fm.section,
+            "tags" : fm.tags,
+            "url" : url,
         }
-        meta, self.raw_html = self._md_to_html()
-        protected = {"content", "raw"}      # fields users cannot set
-        for k, v in meta.items():
-            if k == "date":
-                self.__metadata["page"][k] = self._parse_date(v)
-            elif k not in protected:
-                self.__metadata["page"][k] = v
-            else:
-                raise ValueError(f"metadata field '{k}' is protected and cannot be set")
+
+        # merge extra user fields
+        page.update(fm.model_extra)
+
+        self.__metadata["page"] = page
+
     
     def __hash__(self):
         return hash(self.file)
