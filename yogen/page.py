@@ -69,21 +69,6 @@ class Page():
     def has_meta(self, key : str) -> bool:
         return key in self.__metadata["page"]
 
-    # def render(self, build_path : Path) -> str:
-    #     content_template : Template = Template(self.raw_html)
-    #     rendered_content = content_template.render(**self.__metadata)
-
-    #     self.__metadata["page"]["content"] = Markup(rendered_content)
-
-    #     env = Environment(
-    #         loader=FileSystemLoader(str(build_path)),
-    #         autoescape=select_autoescape()
-    #     )
-    #     template_path : str = str(Path(self.get_meta("template")).relative_to("/"))
-    #     template = env.get_template(template_path)
-    #     output = template.render(**self.__metadata)
-    #     return output
-
     def render(self, build_path: Path) -> str:
         content_template : Template = Template(self.raw_html)
         rendered_content = content_template.render(**self.__metadata)
@@ -129,6 +114,7 @@ class Page():
         raw = ""
 
         md : markdown.Markdown = markdown.Markdown(extensions=["footnotes", "tables", "def_list", "toc", 'markdown_captions', 'fenced_code'])
+        md.parser.blockprocessors.deregister("code")    # this disables code blocks by indentation
         md_text : str = self.file.read_text(encoding="utf-8")
 
         lines = md_text.splitlines()
